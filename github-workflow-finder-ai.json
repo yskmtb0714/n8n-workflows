@@ -1,28 +1,17 @@
 {
   "nodes": [
     {
-      "parameters": {},
-      "id": "0edf7a41-ff33-4298-98bb-42ad20279996",
-      "name": "When clicking 'Test workflow'",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -64,
-        1136
-      ]
-    },
-    {
       "parameters": {
         "content": "## GitHub Workflow Finder with AI Analysis\n\n### What this template does\nSearches GitHub for public **n8n workflows**, analyzes them with AI, and saves the best ones to **Google Sheets** — complete with summaries, use cases, difficulty levels, and repository links.\n\n### Who this is for\n- Automation builders exploring workflow ideas  \n- Teams researching community-built automations  \n- Anyone curating high-quality n8n templates for learning or reuse  \n\n### How it works\n1. **Config** defines the GitHub search query and AI analysis count  \n2. **GitHub Search** + **Split Results** collect workflow file metadata  \n3. **Fetch Workflow JSON** retrieves raw JSON content  \n4. **Process Workflows** parses nodes and detects “AI-powered” flows  \n5. **Prepare AI Analysis** builds a prompt for the top N workflows  \n6. **AI Analysis** summarizes what each workflow does, its use case, and difficulty  \n7. **Merge AI Results** combines AI insights with raw data  \n8. **Save to Google Sheets** outputs the results table  \n\n### Requirements\n- 🔑 **GitHub Personal Access Token** (added via HTTP node header — not hardcoded)  \n- 🧠 **OpenAI API Key** (connected to the “OpenAI Chat Model” node)  \n- 📊 **Google Sheets** credential and target spreadsheet  \n\n### How to set up\n1. In **Config**, edit:\n   - `search_query` — e.g. `\"openai\" extension:json n8n`  \n   - `max_results` — number of workflows to fetch (1–100)  \n   - `ai_analysis_top` — number of top results analyzed with AI  \n2. Add GitHub headers (`Authorization: Bearer YOUR_TOKEN`) to both HTTP nodes  \n3. Connect your **OpenAI** and **Google Sheets** credentials  \n4. Enter your **Spreadsheet ID** in “Save to Google Sheets”  \n\n### How to customize\n- Refine `search_query` for niche topics (e.g., CRM, payments, email)  \n- Adjust the AI system prompt to change tone or detail level  \n- Replace Sheets with Notion or a database for alternate storage  \n- Schedule it weekly for automatic discovery using the included **Schedule Trigger**  \n\n### Notes\n- 🔐 No hardcoded secrets — all credentials handled via n8n credential manager  \n- 🧩 Works with self-hosted n8n (supports cron or manual trigger)  \n- 💡 Use “AI Powered” and “Stars” columns in Sheets to filter top community workflows  \n\n### Author\n**Yusuke M. (@yskautomation)** — AI Automation Architect  \n**License:** MIT  \n**Version:** 1.0 (2025-11-04)  \n**Source:** [github.com/yskautomation/n8n-workflows](https://github.com/yskautomation/n8n-workflows)",
         "height": 1224,
         "width": 658
       },
-      "id": "334079d2-2184-4ff2-8fd4-c7a4e387ead9",
+      "id": "5df5a038-898c-477d-b433-fa8f7e2490b7",
       "name": "📖 README",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -816,
-        592
+        2944,
+        1920
       ],
       "typeVersion": 1
     },
@@ -39,10 +28,10 @@
       "type": "n8n-nodes-base.notion",
       "typeVersion": 2.2,
       "position": [
-        -64,
-        1464
+        6064,
+        2640
       ],
-      "id": "0f7323de-1f8e-4af1-a38e-2121d4ba5d68",
+      "id": "aa1b1543-366b-4410-9eb6-30f54bf341d9",
       "name": "Create a database page",
       "credentials": {
         "notionApi": {
@@ -62,43 +51,11 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -64,
-        1688
+        3664,
+        2464
       ],
-      "id": "f8dcf502-4a93-44bc-b53d-02460d51d8a8",
+      "id": "263314fa-a4cc-43d9-8b76-8b9c1bc17c14",
       "name": "Schedule Trigger"
-    },
-    {
-      "parameters": {
-        "content": "## Setup checklist\n- Add **GitHub** header on both HTTP nodes: `Authorization: Bearer YOUR_TOKEN`\n- Connect **OpenAI** credential to **OpenAI Chat Model**\n- Connect **Google Sheets** credential to **Save to Google Sheets**\n- In **Config**, set:\n  - `search_query` (e.g., `\"openai\" extension:json n8n`)\n  - `max_results` (1–100)\n  - `ai_analysis_top` (controls AI cost)\n- Enter your **Spreadsheet ID** in **Save to Google Sheets**\n- (Optional) Enable **Schedule Trigger** for weekly auto-discovery",
-        "height": 256,
-        "width": 608,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -96,
-        592
-      ],
-      "typeVersion": 1,
-      "id": "48df4243-1fd1-44f7-850d-23bffdbf2867",
-      "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "## Security & review\n- 🔐 No hardcoded secrets in HTTP nodes — use the credential manager.\n- 🗑️ Remove personal IDs (spreadsheet IDs, emails) before publishing.\n- 📝 Keep descriptions in **Markdown** format with **H2 headings** (no HTML tags).\n- ✅ Use descriptive titles (e.g., “GitHub Workflow Finder with AI Analysis”) for SEO clarity.\n- 🧪 Test with a small `max_results` first before scaling up.\n- 🧭 In Google Sheets, filter by **AI Powered** and **Stars** to surface top workflows.\n\n**Author:** Yusuke M. (@yskautomation) — MIT License",
-        "height": 256,
-        "width": 608,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -96,
-        864
-      ],
-      "typeVersion": 1,
-      "id": "723b0fab-cc49-42e1-81a5-7018493f5987",
-      "name": "Sticky Note1"
     },
     {
       "parameters": {
@@ -106,13 +63,13 @@
         "jsonOutput": "={\n  \"search_query\": \"extension:json n8n in:file\",\n  \"max_results\": 50,\n  \"ai_analysis_top\": 10,\n  \"SPREADSHEET_ID\": \"YOUR_SHEET_ID\",\n  \"SHEET_NAME\": \"Sheet1\"\n}",
         "options": {}
       },
-      "id": "ea08967d-bc68-4756-9846-d85212489a6a",
+      "id": "267e0f93-130a-4e95-bc0f-919efa0c1050",
       "name": "Config1",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        160,
-        1136
+        3920,
+        2464
       ]
     },
     {
@@ -158,13 +115,13 @@
           "timeout": 15000
         }
       },
-      "id": "5b7962cd-8364-4cce-b662-a015879fcbd0",
+      "id": "d6f58095-aaf4-4ce7-9559-d47de54537c6",
       "name": "GitHub Search1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        384,
-        1136
+        4144,
+        2464
       ]
     },
     {
@@ -172,13 +129,13 @@
         "fieldToSplitOut": "items",
         "options": {}
       },
-      "id": "27615482-447c-4dd9-b57e-47bec2d40a5a",
+      "id": "4805d685-47aa-4457-9d26-e9babd759869",
       "name": "Split Results1",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        608,
-        1136
+        4368,
+        2464
       ]
     },
     {
@@ -208,13 +165,13 @@
           "timeout": 15000
         }
       },
-      "id": "bfe9f072-bd21-4a3a-8c6f-8411216bf287",
+      "id": "2b73559b-60a5-4bb8-8638-b3f3177a70a7",
       "name": "Fetch Workflow JSON1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        832,
-        1136
+        4592,
+        2464
       ],
       "continueOnFail": true
     },
@@ -222,13 +179,13 @@
       "parameters": {
         "jsCode": "const items = $input.all();\nconst splitItems = $('Split Results1').all();\nconst results = [];\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const splitItem = splitItems[i];\n  const repo = splitItem?.json?.repository;\n  if (!repo) continue;\n  try {\n    let txt = item.json.data || item.json;\n    let wf = null;\n    if (typeof txt === 'string') {\n      try { wf = JSON.parse(txt); } catch { continue; }\n    } else if (typeof txt === 'object' && txt.nodes) {\n      wf = txt;\n    } else { continue; }\n    const nodes = wf?.nodes || [];\n    if (!nodes.length) continue;\n    const filePath = splitItem.json.path || '';\n    const workflowName = wf.name || filePath.split('/').pop().replace(/\\.json$/,'') || 'Untitled Workflow';\n    const nodeTypes = [...new Set(nodes.map(n => n.type).filter(Boolean))];\n    const nodeTypeNames = nodeTypes.map(t => String(t).toLowerCase());\n    const hasAI = nodeTypeNames.some(t => t.includes('openai') || t.includes('langchain') || t.includes('agent') || t.includes('anthropic') || t.includes('gemini') || t.includes('groq') || t.includes('claude'));\n    const keyNodes = nodes.slice(0,3).map(n => n.name).filter(Boolean).join(', ');\n    results.push({ json: {\n      workflow_name: workflowName,\n      repository: repo.full_name || '',\n      stars: repo.stargazers_count || 0,\n      nodes: nodes.length,\n      node_types: nodeTypes.length,\n      has_ai: hasAI ? 'Yes' : 'No',\n      key_nodes: keyNodes || 'N/A',\n      description: (repo.description || '').substring(0,200),\n      repo_url: repo.html_url || '',\n      file_url: splitItem.json.html_url || '',\n      _sort_stars: repo.stargazers_count || 0\n    }});\n  } catch {}\n}\nresults.sort((a,b)=>b.json._sort_stars-a.json._sort_stars);\nreturn results.length ? results : [{json:{error:'No workflows found',message:'Adjust the search query'}}];"
       },
-      "id": "098fade2-13b2-4ade-b4a9-1d6f38916429",
+      "id": "d82d13cf-1d33-4e5b-ab7e-bff27de5213b",
       "name": "Process Workflows1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1056,
-        1136
+        4816,
+        2464
       ]
     },
     {
@@ -236,26 +193,26 @@
         "aggregate": "aggregateAllItemData",
         "options": {}
       },
-      "id": "58ff0adc-9dbf-4073-9772-d0b614d2a48a",
+      "id": "e19ba99c-5c5e-4e70-97da-715c962ab19f",
       "name": "Aggregate All1",
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        1280,
-        1136
+        5040,
+        2464
       ]
     },
     {
       "parameters": {
         "jsCode": "let workflows = $json.data || [];\nlet topCount = ($nodes['Config'].data?.json?.ai_analysis_top) || 10;\nconst toS = v => (v==null?'':String(v));\nconst clean = (s,max=240)=>toS(s).replace(/[^\\x00-\\x7F]/g,'').replace(/\\s+/g,' ').trim().slice(0,max);\nconst n = v => Number.isFinite(Number(v))?Number(v):0;\nconst top = workflows.slice(0, topCount);\nconst items = top.map((w,i)=>`${i+1}. ${clean(w.workflow_name,120)}\\n   Repository: ${clean(w.repository,120)}\\n   Nodes: ${n(w.nodes)}, Stars: ${n(w.stars)}\\n   Key Nodes: ${clean(w.key_nodes,160)}\\n   Description: ${clean(w.description,220)}`);\nconst prompt = `Analyze the following n8n workflows and provide brief insights.\\nAlways respond in ENGLISH (en-US) only. If any input text is not English, translate it to concise English first.\\n\\n${items.join('\\n\\n')}\\n\\nFor each workflow, provide:\\n- description: one sentence (<= 25 words)\\n- use_case: one sentence (<= 20 words)\\n- difficulty: one of [\"Beginner\",\"Intermediate\",\"Advanced\"]\\n\\nSTRICT OUTPUT REQUIREMENTS:\\n- Return ONLY a valid JSON array (no markdown)\\n- ASCII characters only\\n- Schema example: [{\"index\":1,\"description\":\"...\",\"use_case\":\"...\",\"difficulty\":\"Beginner\"}]`;\nreturn [{json:{prompt, all_workflows:workflows, analyzed_count: top.length, total_count: workflows.length}}];"
       },
-      "id": "74a0f51b-9d2c-4486-9a02-a6ad6398e823",
+      "id": "0b287f00-445c-4a4b-9203-558e08a2b035",
       "name": "Prepare AI Analysis1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1504,
-        1136
+        5264,
+        2464
       ]
     },
     {
@@ -267,53 +224,85 @@
           "systemMessage": "You are a workflow analyst. Return ONLY a valid JSON array where each item has exactly: index (int), description (string), use_case (string), difficulty (\"Beginner\"|\"Intermediate\"|\"Advanced\"). No extra fields or prose."
         }
       },
-      "id": "dd8fbe37-d8a5-48ec-bafd-49861a4d1725",
+      "id": "6a745c08-d7b3-490f-b7c4-af293a0847c5",
       "name": "AI Analysis1",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.6,
       "position": [
-        1728,
-        1136
+        5488,
+        2464
       ]
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "04202f64-9e64-4764-8069-fdd0b918927a",
+      "id": "3a6198bd-b06f-4af6-8179-af225910badd",
       "name": "OpenAI Chat Model1",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1,
       "position": [
-        1736,
-        1360
+        5504,
+        2688
       ]
     },
     {
       "parameters": {
         "jsonSchemaExample": "[{\"index\":1,\"description\":\"string\",\"use_case\":\"string\",\"difficulty\":\"Beginner|Intermediate|Advanced\"}]"
       },
-      "id": "25ae40ee-1d30-4f59-bd5d-3b62bd70e661",
+      "id": "cec888f6-7d75-4933-8b3d-63aaf3e3b144",
       "name": "Structured Output Parser1",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1864,
-        1360
+        5632,
+        2688
       ]
     },
     {
       "parameters": {
         "jsCode": "const aiOutput = $input.first().json; const prep = $('Prepare AI Analysis1').first().json; const all = prep.all_workflows||[]; const topN = Number(prep.analyzed_count||0);\nlet arr=[]; try{const raw=aiOutput.output??aiOutput; arr=Array.isArray(raw)?raw:JSON.parse(raw);}catch{arr=[]}\nconst map=new Map(); for(const it of arr){ if(it&&Number.isFinite(Number(it.index))) map.set(Number(it.index)-1,it); }\nconst S=v=>v==null?'':String(v); const clean=s=>S(s).replace(/[^\\x00-\\x7F]/g,'').replace(/\\s+/g,' ').trim();\nreturn all.map((wf,i)=>{ const a=i<topN?map.get(i):undefined; const aiDesc=clean(a?.description||''); const finalDesc=clean(wf.description||'')||aiDesc; const use=i<topN?clean(a?.use_case||''):''; const diff=i<topN?clean(a?.difficulty||''):'';\n  return {json:{workflow_name:wf.workflow_name,repository:wf.repository,stars:wf.stars,nodes:wf.nodes,node_types:wf.node_types,has_ai:wf.has_ai,key_nodes:wf.key_nodes,description:finalDesc,repo_url:wf.repo_url,file_url:wf.file_url,ai_description:aiDesc,ai_use_case:use,ai_difficulty:diff}}; });"
       },
-      "id": "6e8dc8c8-de3c-4911-8f97-9c6a70770965",
+      "id": "ef673aa2-3bf0-4d27-bacc-47da740e7499",
       "name": "Merge AI Results1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2080,
-        1136
+        5840,
+        2464
       ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup checklist\n- Add **GitHub** header on both HTTP nodes: `Authorization: Bearer YOUR_TOKEN`\n- Connect **OpenAI** credential to **OpenAI Chat Model**\n- Connect **Google Sheets** credential to **Save to Google Sheets**\n- In **Config**, set:\n  - `search_query` (e.g., `\"openai\" extension:json n8n`)\n  - `max_results` (1–100)\n  - `ai_analysis_top` (controls AI cost)\n- Enter your **Spreadsheet ID** in **Save to Google Sheets**\n- (Optional) Enable **Schedule Trigger** for weekly auto-discovery",
+        "height": 256,
+        "width": 608,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3664,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "53c227ee-da1c-4c37-bfdf-0e4fe6a68adf",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Security & review\n- 🔐 No hardcoded secrets in HTTP nodes — use the credential manager.\n- 🗑️ Remove personal IDs (spreadsheet IDs, emails) before publishing.\n- 📝 Keep descriptions in **Markdown** format with **H2 headings** (no HTML tags).\n- ✅ Use descriptive titles (e.g., “GitHub Workflow Finder with AI Analysis”) for SEO clarity.\n- 🧪 Test with a small `max_results` first before scaling up.\n- 🧭 In Google Sheets, filter by **AI Powered** and **Stars** to surface top workflows.\n\n**Author:** Yusuke M. (@yskautomation) — MIT License",
+        "height": 256,
+        "width": 608,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3664,
+        2192
+      ],
+      "typeVersion": 1,
+      "id": "10df767b-ce8c-435e-99bc-6c057097aa24",
+      "name": "Sticky Note5"
     },
     {
       "parameters": {
@@ -344,18 +333,18 @@
         },
         "options": {}
       },
-      "id": "1150a4f3-fca1-4cf1-a734-4eaf517cc654",
-      "name": "Save to Google Sheets1",
+      "id": "88a2583d-ef2e-4c8c-9c70-ead11027a651",
+      "name": "Save to Google Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        2304,
-        1136
+        6064,
+        2464
       ]
     }
   ],
   "connections": {
-    "When clicking 'Test workflow'": {
+    "Schedule Trigger": {
       "main": [
         [
           {
@@ -364,11 +353,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "Schedule Trigger": {
-      "main": [
-        []
       ]
     },
     "Config1": {
@@ -485,7 +469,12 @@
       "main": [
         [
           {
-            "node": "Save to Google Sheets1",
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page",
             "type": "main",
             "index": 0
           }
