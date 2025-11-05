@@ -1,544 +1,61 @@
-{
-  "nodes": [
-    {
-      "parameters": {},
-      "id": "2d9b9343-a632-4fb5-ba50-b652483b6ee1",
-      "name": "When clicking 'Test workflow'",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        608,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "content": "## 🎯 Empathy Reply Assistant (EN)\n\n### What this template does\nAnalyzes customer or user messages and produces **empathetic, professional replies** — balancing emotional awareness with actionable clarity.  \nIt detects tone, drafts natural responses, sanitizes output, and **auto-escalates** risky or low-confidence cases.\n\n### Who this is for\n- 💬 Customer support & helpdesk teams  \n- 📱 Social media or community managers  \n- 💼 Sales or CX automation builders  \n- 🤖 Anyone designing human-like AI communication flows  \n\n### How it works\n1. **Receive input** (via Test node or webhook)  \n2. **AI Agent (Empathy)** detects sentiment & generates reply  \n3. **Post-Process & Sanitize** removes URLs, emojis, PII  \n4. **Risk & Handover Rules** evaluates escalation triggers  \n5. **If node** routes to either “OK” or “Needs Review” output  \n\n### Auto-escalation triggers\n- 🚩 Negative sentiment detected  \n- ⚠️ Risk words matched (e.g. *refund, lawsuit, abuse, self-harm*)  \n- ❗ Confidence score < 0.45  \n- 🧨 Mentions of legal or harassment context  \n\n### Configuration\nEdit **Set Config** to adjust:  \n- `MAX_LEN` → Maximum reply length (default: 600)  \n- `ADD_FOLLOWUP_QUESTION` → End with a question (default: true)  \n- `FORMALITY` → auto / casual / polite  \n- `EMOJI_ALLOWED` → Include emojis? (default: false)  \n- `BLOCK_LINKS` → Remove URLs & hashtags (default: true)  \n- `RISK_WORDS` → Add or update escalation keywords  \n\n### Example output\n```json\n{\n  \"sentiment\": \"negative\",\n  \"tone\": \"apologetic\",\n  \"reply\": \"I’m sorry this happened. Let me look into it right away so we can resolve it together.\",\n  \"confidence\": 0.82,\n  \"needs_handover\": true,\n  \"status\": \"REVIEW\",\n  \"note\": \"Escalate to human: risk or low confidence detected.\"\n}",
-        "height": 1072,
-        "width": 1024
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -64,
-        -848
-      ],
-      "typeVersion": 1,
-      "id": "f7db2235-751b-42d3-84c9-0371ebbaefa9",
-      "name": "Sticky Note"
-    },
-    {
-      "parameters": {
-        "content": "### Notes & best practices\n•\t🔐 No hardcoded API keys — use n8n’s credential manager.\n•\t🧩 Works with self-hosted or cloud n8n.\n•\t🧪 Use this for draft generation, not final unsupervised sending.\n•\t⚙️ Tune RISK_WORDS and confidence threshold to match your org’s policy.\n•\t📡 Optional: Connect “REVIEW” path to Slack / email alerts.\n\n### Author\n**Yusuke M. (@yskautomation)** — AI Automation Architect  \n**License:** MIT  \n**Version:** 1.0 (2025-11-04)  \n**Source:** [github.com/yskautomation/n8n-workflows](https://github.com/yskautomation/n8n-workflows)",
-        "height": 272,
-        "width": 544
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -64,
-        320
-      ],
-      "typeVersion": 1,
-      "id": "754a3386-93cf-40bb-906a-9e4488219cdb",
-      "name": "Sticky Note1"
-    },
-    {
-      "parameters": {
-        "content": "## Setup checklist\n- ✅ Connect **Anthropic** credential to **Anthropic Chat Model**  \n  - Model: **Claude 4 Sonnet (2025-05-14)**  \n- 🧩 Review **Set Config1** and confirm:\n  - `MAX_LEN`: Maximum reply length (default **600**)  \n  - `ADD_FOLLOWUP_QUESTION`: Append a soft question (true/false)  \n  - `FORMALITY`: `auto`, `casual`, or `polite`  \n  - `EMOJI_ALLOWED`: Whether to keep emojis (default **false**)  \n  - `BLOCK_LINKS`: Remove URLs (default **true**)  \n  - `RISK_WORDS`: Phrases that trigger human review  \n- 🔗 Ensure **AI Agent (Empathy, EN)1** is connected to:\n  - **Anthropic Chat Model** (language model)  \n  - **Structured Output Parser1** (schema enforcement)  \n  - **Memory (Recent 4)1** (context retention)  \n- ⚙️ Replace **Manual Trigger** with a **Webhook Trigger** or **Schedule Trigger** for production:\n  - **Webhook** → best for real-time incoming messages (e.g., chat or form input)  \n  - **Schedule** → best for periodic inbox scans (e.g., Gmail or Slack every 5 min)  \n  - Keep **Manual Trigger** for testing only  \n- 🧪 Test using **When clicking ‘Test workflow’** to confirm flow integrity.  \n- 📤 Validate output in:\n  - **Draft (Auto-OK)1** → automatically approved replies  \n  - **Draft (Needs Review)1** → human-escalated messages  \n- (Optional) Connect **Slack** or **Notion** nodes for logging, review, or escalation tracking.  \n- 🧭 Recommended hybrid setup:\n  - **Webhook Trigger** for real-time replies  \n  - **Schedule Trigger** (5–10 min) for missed or queued messages  \n  - **Manual Trigger** for safe local testing",
-        "height": 720,
-        "width": 560,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        992,
-        -848
-      ],
-      "typeVersion": 1,
-      "id": "b2c3e495-dbeb-4b59-a9ce-b6eaed203f82",
-      "name": "Sticky Note2"
-    },
-    {
-      "parameters": {
-        "content": "## Security & review\n- 🔐 No API keys or secrets hardcoded — use **n8n credentials**.  \n- 🧱 Keep configuration centralized in **Set Config1** for clarity.  \n- 🧹 Remove any personal text samples or client data before sharing.  \n- 🧪 Use diverse test cases (positive, negative, neutral, high-risk).  \n- ⚙️ Adjust confidence threshold in **Risk & Handover Rules1** (`0.45` by default).  \n- 🧭 If sentiment detection is off, retrain prompt or reduce context memory to avoid bias.  \n\n**Author:** Yusuke M. (@yskautomation) — AI Automation Architect  \n**License:** MIT",
-        "height": 256,
-        "width": 560,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        992,
-        -80
-      ],
-      "typeVersion": 1,
-      "id": "dfee124a-c5f4-450e-9db9-3d99cd1dd5f1",
-      "name": "Sticky Note3"
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={\n  \"text\": \"I'm really frustrated with your service. This is the third time I've had issues and nobody is helping me!\"\n}",
-        "options": {}
-      },
-      "id": "ac9638bd-e82e-473c-935d-77387f0827c6",
-      "name": "Test Input (Change Me)1",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        832,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={\n  \"MAX_LEN\": 600,\n  \"ADD_FOLLOWUP_QUESTION\": true,\n  \"FORMALITY\": \"auto\",\n  \"EMOJI_ALLOWED\": false,\n  \"SIGNOFF\": \"\",\n  \"BLOCK_LINKS\": true,\n  \"RISK_WORDS\": [\n    \"refund\",\"chargeback\",\"lawsuit\",\"harassment\",\"self-harm\",\"suicide\",\"abuse\",\n    \"threat\",\"racist\",\"illegal\",\"hate\",\"scam\"\n  ]\n}",
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "id": "3972b891-6ef7-4f31-915c-7b290932b36e",
-      "name": "Set Config1",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1056,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const j = $input.first().json || {};\nconst sid = j.sessionId || 'test-session-1';\nconst text = j.text || j.message || j.input || JSON.stringify(j);\nreturn [{ json: { ...j, sessionId: String(sid), text } }];"
-      },
-      "id": "546540d3-8889-4a5b-a06f-19322d9b386b",
-      "name": "Ensure Session1",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1280,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You are an Empathy Reply Assistant for English-language messages.\nAnalyze the incoming text:\n<Text>{{ $json.text || $json.message || $json.input || JSON.stringify($json) }}</Text>\n\nGoals:\n1) Detect `sentiment` (positive|neutral|negative|mixed)\n2) Choose a natural human `tone` that fits the sender (warm, calm, upbeat, apologetic, confident, concise)\n3) Draft a short `reply` (<= {{ $('Set Config1').item.json.MAX_LEN }} chars) that:\n   - acknowledges the emotion first in plain English\n   - provides a practical next step or clarification\n   - {{ $('Set Config1').item.json.ADD_FOLLOWUP_QUESTION ? 'ends with a gentle question' : 'may end without a question' }}\n   - uses **no links**, **no hashtags**\n   - matches formality: {{ $('Set Config1').item.json.FORMALITY }} (auto|casual|polite)\n\nReturn **JSON only** with keys: sentiment, tone, reply, confidence (0.0–1.0), needs_handover (boolean).",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "Role: Empathetic, practical, concise. Avoid corporate cliches. Keep it in English. No URLs or hashtags."
-        }
-      },
-      "id": "9f4b03fa-aa22-4cca-a71b-b8d5fa505e45",
-      "name": "AI Agent (Empathy)1",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.6,
-      "position": [
-        1568,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-3-5-sonnet-latest",
-          "cachedResultName": "Claude 3.5 Sonnet (latest)"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        1504,
-        560
-      ],
-      "id": "a9afe8de-3810-4b2b-978e-a30f22f487f5",
-      "name": "Anthropic Chat Model1"
-    },
-    {
-      "parameters": {
-        "contextWindowLength": 4
-      },
-      "id": "1badd599-1d2a-484f-8219-3f03951c2ad4",
-      "name": "Memory (Recent 4)",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        1632,
-        560
-      ]
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"sentiment\": \"positive|neutral|negative|mixed\",\n  \"tone\": \"warm|calm|upbeat|apologetic|confident|concise\",\n  \"reply\": \"string\",\n  \"confidence\": 0.0,\n  \"needs_handover\": false\n}"
-      },
-      "id": "6799d4c5-da73-4415-9d26-c87adfe0d990",
-      "name": "Structured Output Parser",
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
-      "position": [
-        1760,
-        560
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Read config from Set Config node (stable across items)\nconst cfgNode = $nodes['Set Config']?.data?.json || {};\nconst cfg = {\n  MAX_LEN: Number(cfgNode.MAX_LEN ?? 600),\n  EMOJI_ALLOWED: cfgNode.EMOJI_ALLOWED === false ? false : Boolean(cfgNode.EMOJI_ALLOWED),\n  SIGNOFF: String(cfgNode.SIGNOFF ?? ''),\n  BLOCK_LINKS: cfgNode.BLOCK_LINKS === undefined ? true : Boolean(cfgNode.BLOCK_LINKS)\n};\n\nconst input = $input.first().json || {};\nlet out = { ...input };\n\nout.sentiment = (out.sentiment || '').toLowerCase();\nout.tone = (out.tone || '').toLowerCase();\nout.reply = (out.reply || '').toString();\nout.confidence = (typeof out.confidence === 'number') ? out.confidence : 0.6;\nout.needs_handover = !!out.needs_handover;\n\nif (cfg.BLOCK_LINKS) {\n  out.reply = out.reply\n    .replace(/https?:\\/\\/\\S+/gi, '')\n    .replace(/#[\\w-]+/g, '')\n    .replace(/\\s{2,}/g, ' ');\n}\n\nif (cfg.EMOJI_ALLOWED === false) {\n  out.reply = out.reply.replace(/[\\p{Extended_Pictographic}\\p{Emoji_Component}]/gu, '');\n}\n\nout.reply = out.reply\n  .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/ig, '[email hidden]')\n  .replace(/\\b\\+?\\d[\\d\\s().-]{6,}\\b/g, '[phone hidden]');\n\nconst maxLen = Number(cfg.MAX_LEN || 600);\nif (out.reply.length > maxLen) {\n  out.reply = out.reply.slice(0, maxLen - 1).replace(/\\s+\\S*$/, '') + '…';\n}\n\nif (cfg.SIGNOFF && !/\\b(best|thanks|regards)\\b/i.test(out.reply)) {\n  out.reply = out.reply.trim() + \"\\n\" + cfg.SIGNOFF;\n}\n\nreturn [{ json: out }];"
-      },
-      "id": "61a412c9-801c-4d5d-822a-8499a26d2607",
-      "name": "Post-Process & Sanitize1",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1968,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Read RISK_WORDS from Set Config node\nconst cfgNode = $nodes['Set Config']?.data?.json || {};\nconst riskWords = Array.isArray(cfgNode.RISK_WORDS) ? cfgNode.RISK_WORDS : [];\n\nconst escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst riskPattern = riskWords.length ? '(' + riskWords.map(escapeRegex).join('|') + ')' : '(?!)';\nconst risk = new RegExp(riskPattern, 'i');\n\nconst j = $input.first().json || {};\nconst originalText = j.text || j.message || j.input || '';\n\nconst lowConfidence = (j.confidence || 0) < 0.45;\nconst highRisk = risk.test(originalText) || risk.test(j.reply || '');\nconst veryNegative = (j.sentiment || '') === 'negative';\n\nconst needsHandover = Boolean(j.needs_handover || lowConfidence || highRisk || veryNegative);\n\nreturn [{ json: { ...j, needs_handover: needsHandover, _debug: { lowConfidence, highRisk, veryNegative, originalText: String(originalText).substring(0,120), riskWordsUsed: riskWords } } }];"
-      },
-      "id": "c255267c-5dfb-47d9-9c9a-9a7ae4ada264",
-      "name": "Risk & Handover Rules1",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        2192,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.needs_handover }}",
-              "operator": {
-                "type": "boolean",
-                "operation": "true"
-              },
-              "id": "e2876b8a-248f-41a9-95f2-cbb235ad7071"
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "7aae0aff-287e-4c5c-b6d4-c2e5b42e2efb",
-      "name": "If needs_handover1",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2416,
-        336
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "a1",
-              "name": "status",
-              "type": "string",
-              "value": "REVIEW"
-            },
-            {
-              "id": "a2",
-              "name": "note",
-              "type": "string",
-              "value": "Escalate to human: risk/low-confidence/negative tone detected."
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "id": "42085b59-d2d1-443b-9699-dbbe3ce86acf",
-      "name": "Draft (Needs Review)",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        2640,
-        240
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "b1",
-              "name": "status",
-              "type": "string",
-              "value": "OK"
-            }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "id": "529f1815-7913-424d-8908-ff282ceabcdd",
-      "name": "Draft (Auto-OK)",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        2640,
-        432
-      ]
-    },
-    {
-      "parameters": {
-        "path": "7a62325a-0000-4724-8fe4-8829e3dea2fb",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        608,
-        528
-      ],
-      "id": "9517622f-10ae-4597-81e6-4b426d266e4c",
-      "name": "for real-time replies",
-      "webhookId": "7a62325a-0000-4724-8fe4-8829e3dea2fb"
-    },
-    {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {}
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        608,
-        688
-      ],
-      "id": "50a47075-c245-46f5-a103-9c240c03f519",
-      "name": "(5–10 min) for missed or queued"
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "channelId": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        },
-        "updateFields": {},
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        2864,
-        432
-      ],
-      "id": "66b91934-ac03-4d78-a816-052aebae5d8a",
-      "name": "Update a message",
-      "webhookId": "d03b31ff-3de4-4953-a091-7445a6c48be5"
-    },
-    {
-      "parameters": {
-        "operation": "appendOrUpdate",
-        "documentId": "={{ $('Config1').item.json.SPREADSHEET_ID }}",
-        "sheetName": "={{ $('Config1').item.json.SHEET_NAME }}",
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Workflow": "={{ $json.workflow_name }}",
-            "Repository": "={{ $json.repository }}",
-            "Stars": "={{ $json.stars }}",
-            "Nodes": "={{ $json.nodes }}",
-            "Node Types": "={{ $json.node_types }}",
-            "AI Powered": "={{ $json.has_ai }}",
-            "Key Nodes": "={{ $json.key_nodes }}",
-            "Use Case": "={{ $json.ai_use_case }}",
-            "Difficulty": "={{ $json.ai_difficulty }}",
-            "Repo URL": "={{ $json.repo_url }}",
-            "File URL": "={{ $json.file_url }}",
-            "AI Summary": "={{ $json.description }}"
-          },
-          "matchingColumns": [
-            "Workflow"
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "id": "0dc9f0d7-38ff-4cf0-919e-c6d87b93168d",
-      "name": "Save to Google Sheets1",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
-      "position": [
-        2864,
-        240
-      ],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "lQPBplQIZUZ1JZ5k",
-          "name": "Google Sheets account 3"
-        }
-      }
-    }
-  ],
-  "connections": {
-    "When clicking 'Test workflow'": {
-      "main": [
-        [
-          {
-            "node": "Test Input (Change Me)1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Test Input (Change Me)1": {
-      "main": [
-        [
-          {
-            "node": "Set Config1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set Config1": {
-      "main": [
-        [
-          {
-            "node": "Ensure Session1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ensure Session1": {
-      "main": [
-        [
-          {
-            "node": "AI Agent (Empathy)1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent (Empathy)1": {
-      "main": [
-        [
-          {
-            "node": "Post-Process & Sanitize1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Anthropic Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent (Empathy)1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Memory (Recent 4)": {
-      "ai_memory": [
-        [
-          {
-            "node": "AI Agent (Empathy)1",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Structured Output Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "AI Agent (Empathy)1",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Post-Process & Sanitize1": {
-      "main": [
-        [
-          {
-            "node": "Risk & Handover Rules1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Risk & Handover Rules1": {
-      "main": [
-        [
-          {
-            "node": "If needs_handover1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If needs_handover1": {
-      "main": [
-        [
-          {
-            "node": "Draft (Needs Review)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Draft (Auto-OK)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "for real-time replies": {
-      "main": [
-        [
-          {
-            "node": "Test Input (Change Me)1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "(5–10 min) for missed or queued": {
-      "main": [
-        []
-      ]
-    }
-  },
-  "pinData": {},
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>n8n Workflows by Yusuke</title>
+  <meta name="description" content="Curated collection of AI & automation workflows built with n8n by @yskautomation." />
+  <style>
+    :root { --bg:#fafafa; --card:#fff; --text:#111; --muted:#666; --line:#eee; --link:#0a66ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto; background:var(--bg); color:var(--text); }
+    header { padding:56px 20px 24px; text-align:center; }
+    h1 { margin:0 0 8px; font-size: clamp(24px, 3vw, 34px); }
+    p.lead { margin:0; color:var(--muted); }
+    .wrap { max-width:960px; margin:32px auto 64px; padding:0 20px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+    .card h2 { margin:0 0 8px; font-size:18px; }
+    .card p { margin:0 0 14px; color:var(--muted); }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--link); font-weight:600; background:#f5f8ff; }
+    .meta { margin-top:40px; text-align:center; color:var(--muted); font-size:14px; }
+    .meta a { color:var(--link); text-decoration:none; }
+    .meta a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚀 n8n Workflows by Yusuke</h1>
+    <p class="lead">Curated collection of AI &amp; automation workflows built with <strong>n8n</strong>.</p>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+
+      <!-- Template #1 -->
+      <article class="card">
+        <h2>🧠 Self-Reflecting Workflow Logger</h2>
+        <p>Analyzes n8n execution logs and creates daily AI reflections.</p>
+        <a class="btn" href="/self-reflecting-logger.json" download>⬇️ Download Template JSON</a>
+      </article>
+
+      <!-- Template #2 -->
+      <article class="card">
+        <h2>🤖 GitHub Workflow Finder AI</h2>
+        <p>Searches GitHub for n8n workflows, analyzes topics, and ranks by popularity &amp; recency.</p>
+        <a class="btn" href="/github-workflow-finder-ai.json" download>⬇️ Download Template JSON</a>
+      </article>
+
+      <!-- Template #3 -->
+      <article class="card">
+        <h2>💬 Empathy Reply Assistant</h2>
+        <p>Generates emotionally intelligent replies for customer or user messages with tone control and risk detection.</p>
+        <a class="btn" href="/empathy-reply-assistant.json" download>⬇️ Download Template JSON</a>
+      </article>
+
+    </section>
+
+    <p class="meta">© 2025 Yusuke M. — <a href="https://x.com/yskautomation" target="_blank" rel="noopener">@yskautomation</a></p>
+  </main>
+</body>
+</html>
