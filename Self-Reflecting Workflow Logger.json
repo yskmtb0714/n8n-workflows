@@ -1,0 +1,320 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Self-Reflecting Workflow Logger\n\n### What this template does\nAnalyzes your n8n execution logs and generates a structured daily reflection — including a **summary, wins, issues, suggestions, and next actions**.  \nOptionally saves reflections to **Notion** for long-term tracking and performance trend reviews.\n\n### Who this is for\n- Automation builders seeking daily self-improvement loops  \n- Ops teams monitoring workflow reliability and SLA compliance  \n- Anyone running production n8n systems that evolve daily  \n\n### How it works\n1. Receives execution logs via **Webhook** (or Test trigger with sample data)  \n2. AI Agent analyzes workflow metrics and creates actionable insights  \n3. (Optional) Saves structured reflections to **Notion**  \n\n### How to set up\n1. Open **Set Config** and define:  \n   - `PROJECT_NAME` — e.g. “My Automation System”  \n   - `SAVE_TO_NOTION` — true/false  \n   - `NOTION_DB_ID` — only if saving to Notion  \n2. Connect your **OpenAI** credential to “OpenAI Chat Model”  \n3. (Optional) Connect your **Notion** credential to “Save to Notion (Optional)”  \n\n### Requirements\n- ✅ **OpenAI API Key** (never hardcoded in HTTP nodes)  \n- 🧠 (Optional) Notion database with these properties:  \n  - `Project (title)`  \n  - `Summary (rich_text)`  \n  - `Wins (rich_text)`  \n  - `Issues (rich_text)`  \n  - `Suggestions (rich_text)`  \n  - `NextActions (rich_text)`  \n\n### How to customize\n- Adjust the **AI Agent (Reflection)** prompt to focus on key metrics (e.g., error codes, runtime, retries).  \n- Add **Slack** or **Email** alerts for high error rates using optional nodes included in this template.  \n- Integrate this with your main automations to create a **self-learning ecosystem**.\n\n### Sample test payload\n{\n  \"workflowId\": \"abc123\",\n  \"runAt\": \"2025-11-04T03:00:00Z\",\n  \"stats\": {\"runs\": 42, \"errors\": 3, \"avgMs\": 812},\n  \"recentErrors\": [{\"code\":\"ECONNRESET\",\"count\":2},{\"code\":\"429\",\"count\":1}]\n}\n\n### Notes\n- 🔐 Follows security best practices — no API keys stored in any HTTP node.  \n- 🧩 Works in self-hosted environments (can be triggered via cron + POST).  \n- 👀 Always review AI output before committing to Notion in production.  \n\n### Author\n**Yusuke M. (@yskautomation)** — AI Automation Architect  \n**License:** MIT  \n**Version:** 1.0  \n**Source:** https://github.com/yskautomation/n8n-workflows",
+        "height": 1376,
+        "width": 656
+      },
+      "id": "a9966db8-ea3f-49a5-8292-7211f2b41ea2",
+      "name": "📖 README",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        -816
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "406ce4c8-094e-4697-8915-c24dafdee7f4",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "logs-in",
+        "options": {
+          "responseData": "={{ $json }}"
+        }
+      },
+      "id": "4903697a-900e-4d62-8f22-31da2d76a64e",
+      "name": "Webhook (Logs In)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -608,
+        32
+      ],
+      "typeVersion": 1,
+      "webhookId": "bea10f6b-1f8e-4972-8ac9-782b4de00f8c"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"PROJECT_NAME\": \"YOUR_PROJECT_NAME\",\n  \"SAVE_TO_NOTION\": false,\n  \"NOTION_DB_ID\": \"YOUR_NOTION_DB_ID\"\n}",
+        "options": {}
+      },
+      "id": "ec9b1c98-62a2-4129-8aed-5c4ab31c2427",
+      "name": "Set Config (Project & Notion)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -192,
+        -176
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Self-Reflecting Ops Coach analyzing workflow execution data.\n\n**Project:** {{ $('Set Config (Project & Notion)').item.json.PROJECT_NAME }}\n\n**Raw Execution Data:**\n{{ JSON.stringify($json, null, 2) }}\n\n**Your Task:**\nAnalyze the data and provide actionable insights in JSON format.\n\n**Required Output Structure:**\n{\n  \"summary\": \"2-3 sentence overview of today's performance\",\n  \"wins\": [\"list of 1-5 specific successes\"],\n  \"issues\": [\"list of 1-5 problems encountered\"],\n  \"suggestions\": [\"list of 1-5 process improvements\"],\n  \"next_actions\": [\"list of 1-5 concrete actions for tomorrow\"]\n}\n\n**Guidelines:**\n- Be specific and data-driven\n- Focus on actionable insights\n- Keep each item concise (one line)\n- No generic advice\n- Use actual numbers from the data",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a senior automation engineer reviewing workflow performance. Be practical, specific, and honest. Focus on actionable insights, not praise. Use only the provided execution data."
+        }
+      },
+      "id": "96339918-d3b5-4dd2-ae82-72005989abe3",
+      "name": "AI Agent (Reflection)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        48,
+        -176
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "id": "06d67cf4-faae-4601-be8f-cc57b6c7eb37",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        64,
+        48
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"summary\": \"string\",\n  \"wins\": [\"string\"],\n  \"issues\": [\"string\"],\n  \"suggestions\": [\"string\"],\n  \"next_actions\": [\"string\"]\n}"
+      },
+      "id": "1c6ae1cf-2914-4d93-9b8c-b2cc4b778539",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        192,
+        48
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "typeValidation": "strict",
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $('Set Config (Project & Notion)').item.json.SAVE_TO_NOTION }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d525294e-c6df-4c1e-bd20-6cfdddbfa336",
+      "name": "If Save Enabled",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        400,
+        -176
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Config (Project & Notion)').item.json.NOTION_DB_ID }}"
+        },
+        "title": "=={{ 'Reflection — ' + new Date().toISOString().slice(0,10) }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Summary|rich_text",
+              "textContent": "=={{ String($json.output?.summary || '') }}"
+            },
+            {
+              "key": "Wins|rich_text",
+              "textContent": "=={{ Array.isArray($json.output?.wins) ? $json.output.wins.join('\\n• ') : String($json.output?.wins || '') }}"
+            },
+            {
+              "key": "Issues|rich_text",
+              "textContent": "=={{ Array.isArray($json.output?.issues) ? $json.output.issues.join('\\n• ') : String($json.output?.issues || '') }}"
+            },
+            {
+              "key": "Suggestions|rich_text",
+              "textContent": "=={{ Array.isArray($json.output?.suggestions) ? $json.output.suggestions.join('\\n• ') : String($json.output?.suggestions || '') }}"
+            },
+            {
+              "key": "NextActions|rich_text",
+              "textContent": "=={{ Array.isArray($json.output?.next_actions) ? $json.output.next_actions.join('\\n• ') : String($json.output?.next_actions || '') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "972e3d6d-a9be-4a37-90e9-41c3d31503bd",
+      "name": "Save to Notion (Optional)",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        624,
+        -176
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "40ccdb96-779f-4631-bda6-9651cc945cbb",
+      "name": "Schedule Trigger (Optional)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -608,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup checklist\n- Connect **OpenAI** credential to **OpenAI Chat Model**\n- (Optional) Connect **Notion** credential to **Save to Notion (Optional)**\n- In **Set Config**, set: `PROJECT_NAME`, `SAVE_TO_NOTION`, `NOTION_DB_ID`\n- Test with **Manual Trigger** or POST to **Webhook (Logs In)**",
+        "height": 224,
+        "width": 464,
+        "color": 7
+      },
+      "id": "fc8d7fa5-21cd-45e0-aa50-4445c0c7d577",
+      "name": "Sticky Note — Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -816
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Security & review\n- No API keys are hardcoded in any HTTP node.\n- Remove personal IDs (sheet/DB IDs, emails) before publishing.\n- Keep description in Markdown with **H2** headings (no HTML tags).",
+        "height": 144,
+        "width": 464,
+        "color": 7
+      },
+      "id": "c7bf25c1-862e-4b06-b743-833ec0ecd6f7",
+      "name": "Sticky Note — Security",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -576
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Set Config (Project & Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook (Logs In)": {
+      "main": [
+        [
+          {
+            "node": "Set Config (Project & Notion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Config (Project & Notion)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent (Reflection)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent (Reflection)": {
+      "main": [
+        [
+          {
+            "node": "If Save Enabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent (Reflection)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent (Reflection)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Save Enabled": {
+      "main": [
+        [
+          {
+            "node": "Save to Notion (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
