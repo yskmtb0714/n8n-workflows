@@ -1,0 +1,489 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Add to KB",
+        "formDescription": "Paste your past posts or notes. Optionally tag topic and mark as style sample.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "content",
+              "fieldType": "textarea",
+              "placeholder": "📝 Paste your past post or idea here…",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "topic",
+              "placeholder": "💬 e.g. creator_mindset, ai_automation, productivity"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ebe266a1-6996-4561-91c4-ad51a47bf1ff",
+      "name": "Form: Add to KB",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        160
+      ],
+      "webhookId": "c765358a-ad26-45c8-8e64-e63ac8b10bf6"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ ({ content: $json.fields.content, topic: ($json.fields.topic || ''), style: 'true' }) }}",
+        "options": {}
+      },
+      "id": "987ef974-0653-4052-a893-0cee65b12a38",
+      "name": "Normalize (ingest)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b704f406-dd76-4e63-90fc-a52f7555a32f",
+      "name": "Embeddings OpenAI (ingest)",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.content }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "source",
+                "value": "user_ingest"
+              },
+              {
+                "name": "style",
+                "value": "true"
+              },
+              {
+                "name": "topic",
+                "value": "={{ $json.topic || '' }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "bb8adb27-18a7-4968-b386-5d108077f039",
+      "name": "Document Loader (+metadata)",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 1200,
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "id": "1e3d14c5-323b-4742-adf2-d48d2e0797bd",
+      "name": "Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "e3fcdf70-f145-4e77-a72f-21ec8bf03f64",
+      "name": "VectorStore (Supabase)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "={{ $json.metadata.topic }}",
+        "completionMessage": "={{ $json.pageContent }}",
+        "options": {}
+      },
+      "id": "ad44f355-4a96-4326-849f-cc5802f68cb0",
+      "name": "End Page (ingest)",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        160,
+        160
+      ],
+      "webhookId": "bfcc6af8-0477-420b-927d-acad36a2241c"
+    },
+    {
+      "parameters": {
+        "formTitle": "Generate Posts",
+        "formDescription": "Create post/quote/reply/image_prompt from your knowledge base.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "topic"
+            },
+            {
+              "fieldLabel": "topK",
+              "fieldType": "number",
+              "placeholder": "Default 5"
+            },
+            {
+              "fieldLabel": "hint",
+              "placeholder": "Optional hint (e.g., Consistency vs creativity)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c1da3d7-e7e6-4ff2-b3fe-cecf3203ebd5",
+      "name": "Form: Generate",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        800
+      ],
+      "webhookId": "9d8a5d05-e83b-4178-ba83-45a28e50fd71"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ ({ topic: $json.fields.topic || '', style: 'true', topK: Number($json.fields.topK || 5), hint: $json.fields.hint || '', filters: { topic: ($json.fields.topic || ''), style: true } }) }}",
+        "options": {}
+      },
+      "id": "cc8834b8-a801-41ef-8b09-a54758ce6802",
+      "name": "Build Params",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "id": "0840191c-1fa9-49d9-b574-33a01aa3a2b2",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "kb_vectorstore",
+        "toolDescription": "KB search over Supabase `documents` (use filters like {\"topic\":\"creator_mindset\",\"style\":\"true\"})",
+        "tableName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "928c47c7-82d5-4723-aea8-85e3a08dd617",
+      "name": "KB (Supabase VectorStore)",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        1024
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content engineer for X posts.\nUse the KB (tool) to fetch up to {{$json.topK || 5}} relevant snippets using {{$json.filters}}.\nThen output **JSON only** with keys exactly:\n{\"post\",\"quote\",\"reply\",\"image_prompt\"}\n- post: one original tweet (<=230 chars, no hashtags/links)\n- quote: sharp quote-tweet for a given topic/link (<=200 chars)\n- reply: constructive reply (<=180 chars, end with a short question)\n- image_prompt: brief photoreal/graphic prompt\nKeep tone aligned to retrieved examples. Topic: {{$json.topic}}. Hint: {{$json.hint}}",
+        "options": {
+          "systemMessage": "Be concise, concrete, and aligned to prior high-engagement style."
+        }
+      },
+      "id": "0282dd5d-4b38-425d-8872-2a3c760f7db1",
+      "name": "Generator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (() => { const cur = Array.isArray($json) ? $json[0] : $json; let o = {}; try { o = typeof cur.output === 'string' ? JSON.parse(cur.output) : (cur.output || {}); } catch(e) { o = {}; } return { completionTitle: '🎯 Generated Results', completionMessage: `<div style=\"font-family:sans-serif; line-height:1.5;\"><h3>📝 Post</h3><p>${o.post ?? ''}</p><hr/><h3>💬 Quote</h3><p>${o.quote ?? ''}</p><hr/><h3>💭 Reply</h3><p>${o.reply ?? ''}</p><hr/><h3>🎨 Image Prompt</h3><p>${o.image_prompt ?? ''}</p></div>` }; })() }}",
+        "options": {}
+      },
+      "id": "4f7bb255-720f-4302-8ed2-cc63e7f3f351",
+      "name": "Edit Fields (format HTML)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "={{ $json.completionTitle }}",
+        "completionMessage": "={{ $json.completionMessage }}",
+        "options": {}
+      },
+      "id": "f21e193d-4155-411c-8ce2-bd7ad75dcb49",
+      "name": "End Page (generate)",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        800
+      ],
+      "webhookId": "57986817-28ef-4552-8210-130863df7601"
+    },
+    {
+      "parameters": {
+        "content": "## Creator RAG Booster — Overview\n**What it does**  \nLearns *your* voice from past posts/notes and generates on-brand tweets, quote-replies, replies, and image prompts.\n\n**Flow**  \n1) Ingest: Add samples with a topic → store text + metadata in Supabase (vector).  \n2) Generate: Retrieve top-k style chunks → Agent composes outputs aligned to your tone.  \n\n**Who for**  \nCreators who are tired of generic AI and want scalable, authentic output.",
+        "height": 360,
+        "width": 420,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "e04f437d-4024-4f17-94ab-94cf2b26504e",
+      "name": "Sticky: Overview (yellow)"
+    },
+    {
+      "parameters": {
+        "content": "## STEP 1 — Ingest (Learn your voice)\nPaste a real post or note, add **topic** (e.g., `creator_mindset`).  \nWe save: text + metadata `{topic, style:true, source:user_ingest}` → Supabase `documents`.",
+        "height": 200,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "7e459a4a-54f9-4591-a09d-259f746caec1",
+      "name": "Sticky: Step 1"
+    },
+    {
+      "parameters": {
+        "content": "## STEP 2 — Generate (Create on-brand posts)\nPick **topic**, set **topK** (3–8 recommended), optional **hint**.  \nAgent retrieves relevant chunks → outputs: **post / quote / reply / image_prompt**.",
+        "height": 200,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "61097444-5462-4c39-b25c-97b2d26c825d",
+      "name": "Sticky: Step 2"
+    },
+    {
+      "parameters": {
+        "content": "## Troubleshooting & Tips\n- End page blank? Use **Form → Page Type: Completion**.  \n- No inserts? Check Supabase creds & RLS policy (insert/select).  \n- Weak style? Ingest 10–20 varied samples per topic.  \n- Retrieval noisy? Lower/raise **topK** (3–8).  \n- Webhook clash? Ensure unique paths and reactivate forms.",
+        "height": 240,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "e06b4e1c-e625-4214-9c12-a2bbba5a7f35",
+      "name": "Sticky: Troubleshooting"
+    }
+  ],
+  "connections": {
+    "Form: Add to KB": {
+      "main": [
+        [
+          {
+            "node": "Normalize (ingest)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize (ingest)": {
+      "main": [
+        [
+          {
+            "node": "VectorStore (Supabase)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI (ingest)": {
+      "ai_embedding": [
+        [
+          {
+            "node": "VectorStore (Supabase)",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "KB (Supabase VectorStore)",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Loader (+metadata)": {
+      "ai_document": [
+        [
+          {
+            "node": "VectorStore (Supabase)",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Document Loader (+metadata)",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VectorStore (Supabase)": {
+      "main": [
+        [
+          {
+            "node": "End Page (ingest)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form: Generate": {
+      "main": [
+        [
+          {
+            "node": "Build Params",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Params": {
+      "main": [
+        [
+          {
+            "node": "Generator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KB (Supabase VectorStore)": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generator Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generator Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields (format HTML)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields (format HTML)": {
+      "main": [
+        [
+          {
+            "node": "End Page (generate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
