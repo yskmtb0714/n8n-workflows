@@ -48,6 +48,7 @@ Each workflow is self-contained, ready to import into n8n (Cloud or self-hosted)
 
 - 🔗 Live site: [https://yskmtb0714.github.io/n8n-workflows](https://yskmtb0714.github.io/n8n-workflows)
 - 🧵 X (Twitter): [@yskautomation](https://x.com/yskautomation)
+- 👉 Live site: [rag-whisperer-studio.lovable.app](https://rag-whisperer-studio.lovable.app)
 - 💼 Lovable LP: *Coming soon — “100 → $1K Revenue Sprint” project*
 
 ---
