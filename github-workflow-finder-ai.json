@@ -2,21 +2,6 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## GitHub Workflow Finder with AI Analysis\n\n### What this template does\nSearches GitHub for public **n8n workflows**, analyzes them with AI, and saves the best ones to **Google Sheets** — complete with summaries, use cases, difficulty levels, and repository links.\n\n### Who this is for\n- Automation builders exploring workflow ideas  \n- Teams researching community-built automations  \n- Anyone curating high-quality n8n templates for learning or reuse  \n\n### How it works\n1. **Config** defines the GitHub search query and AI analysis count  \n2. **GitHub Search** + **Split Results** collect workflow file metadata  \n3. **Fetch Workflow JSON** retrieves raw JSON content  \n4. **Process Workflows** parses nodes and detects “AI-powered” flows  \n5. **Prepare AI Analysis** builds a prompt for the top N workflows  \n6. **AI Analysis** summarizes what each workflow does, its use case, and difficulty  \n7. **Merge AI Results** combines AI insights with raw data  \n8. **Save to Google Sheets** outputs the results table  \n\n### Requirements\n- 🔑 **GitHub Personal Access Token** (added via HTTP node header — not hardcoded)  \n- 🧠 **OpenAI API Key** (connected to the “OpenAI Chat Model” node)  \n- 📊 **Google Sheets** credential and target spreadsheet  \n\n### How to set up\n1. In **Config**, edit:\n   - `search_query` — e.g. `\"openai\" extension:json n8n`  \n   - `max_results` — number of workflows to fetch (1–100)  \n   - `ai_analysis_top` — number of top results analyzed with AI  \n2. Add GitHub headers (`Authorization: Bearer YOUR_TOKEN`) to both HTTP nodes  \n3. Connect your **OpenAI** and **Google Sheets** credentials  \n4. Enter your **Spreadsheet ID** in “Save to Google Sheets”  \n\n### How to customize\n- Refine `search_query` for niche topics (e.g., CRM, payments, email)  \n- Adjust the AI system prompt to change tone or detail level  \n- Replace Sheets with Notion or a database for alternate storage  \n- Schedule it weekly for automatic discovery using the included **Schedule Trigger**  \n\n### Notes\n- 🔐 No hardcoded secrets — all credentials handled via n8n credential manager  \n- 🧩 Works with self-hosted n8n (supports cron or manual trigger)  \n- 💡 Use “AI Powered” and “Stars” columns in Sheets to filter top community workflows  \n\n### Author\n**Yusuke M. (@yskautomation)** — AI Automation Architect  \n**License:** MIT  \n**Version:** 1.0 (2025-11-04)  \n**Source:** [github.com/yskautomation/n8n-workflows](https://github.com/yskautomation/n8n-workflows)",
-        "height": 1224,
-        "width": 658
-      },
-      "id": "5df5a038-898c-477d-b433-fa8f7e2490b7",
-      "name": "📖 README",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        2944,
-        1920
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
         "resource": "databasePage",
         "databaseId": {
           "__rl": true,
@@ -25,14 +10,14 @@
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.notion",
-      "typeVersion": 2.2,
-      "position": [
-        6064,
-        2640
-      ],
-      "id": "aa1b1543-366b-4410-9eb6-30f54bf341d9",
+      "id": "422d9d8c-60a6-4b05-b608-7180436c5085",
       "name": "Create a database page",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        576,
+        224
+      ],
+      "typeVersion": 2.2,
       "credentials": {
         "notionApi": {
           "id": "DxeH9hcrDAoOVTMn",
@@ -48,14 +33,14 @@
           ]
         }
       },
+      "id": "7e30dccc-90f1-4d1f-beaf-53d80bff07b0",
+      "name": "Schedule Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
       "position": [
-        3664,
-        2464
+        -1792,
+        128
       ],
-      "id": "263314fa-a4cc-43d9-8b76-8b9c1bc17c14",
-      "name": "Schedule Trigger"
+      "typeVersion": 1.2
     },
     {
       "parameters": {
@@ -63,14 +48,14 @@
         "jsonOutput": "={\n  \"search_query\": \"extension:json n8n in:file\",\n  \"max_results\": 50,\n  \"ai_analysis_top\": 10,\n  \"SPREADSHEET_ID\": \"YOUR_SHEET_ID\",\n  \"SHEET_NAME\": \"Sheet1\"\n}",
         "options": {}
       },
-      "id": "267e0f93-130a-4e95-bc0f-919efa0c1050",
+      "id": "3816aa60-8b5f-4bfb-8bf1-c6b409cc3cc5",
       "name": "Config1",
       "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
       "position": [
-        3920,
-        2464
-      ]
+        -1568,
+        128
+      ],
+      "typeVersion": 3.4
     },
     {
       "parameters": {
@@ -115,28 +100,28 @@
           "timeout": 15000
         }
       },
-      "id": "d6f58095-aaf4-4ce7-9559-d47de54537c6",
+      "id": "4a1a3eb6-1152-47c2-89ea-b803a5f8f4a0",
       "name": "GitHub Search1",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
       "position": [
-        4144,
-        2464
-      ]
+        -1344,
+        128
+      ],
+      "typeVersion": 4.2
     },
     {
       "parameters": {
         "fieldToSplitOut": "items",
         "options": {}
       },
-      "id": "4805d685-47aa-4457-9d26-e9babd759869",
+      "id": "427ec2cf-36fe-4ec7-b29b-1a3714b1b2f3",
       "name": "Split Results1",
       "type": "n8n-nodes-base.splitOut",
-      "typeVersion": 1,
       "position": [
-        4368,
-        2464
-      ]
+        -1120,
+        128
+      ],
+      "typeVersion": 1
     },
     {
       "parameters": {
@@ -165,55 +150,55 @@
           "timeout": 15000
         }
       },
-      "id": "2b73559b-60a5-4bb8-8638-b3f3177a70a7",
+      "id": "2f4c107f-bdbe-4dfd-8749-b03cf29cfca2",
       "name": "Fetch Workflow JSON1",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
       "position": [
-        4592,
-        2464
+        -896,
+        128
       ],
+      "typeVersion": 4.2,
       "continueOnFail": true
     },
     {
       "parameters": {
         "jsCode": "const items = $input.all();\nconst splitItems = $('Split Results1').all();\nconst results = [];\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const splitItem = splitItems[i];\n  const repo = splitItem?.json?.repository;\n  if (!repo) continue;\n  try {\n    let txt = item.json.data || item.json;\n    let wf = null;\n    if (typeof txt === 'string') {\n      try { wf = JSON.parse(txt); } catch { continue; }\n    } else if (typeof txt === 'object' && txt.nodes) {\n      wf = txt;\n    } else { continue; }\n    const nodes = wf?.nodes || [];\n    if (!nodes.length) continue;\n    const filePath = splitItem.json.path || '';\n    const workflowName = wf.name || filePath.split('/').pop().replace(/\\.json$/,'') || 'Untitled Workflow';\n    const nodeTypes = [...new Set(nodes.map(n => n.type).filter(Boolean))];\n    const nodeTypeNames = nodeTypes.map(t => String(t).toLowerCase());\n    const hasAI = nodeTypeNames.some(t => t.includes('openai') || t.includes('langchain') || t.includes('agent') || t.includes('anthropic') || t.includes('gemini') || t.includes('groq') || t.includes('claude'));\n    const keyNodes = nodes.slice(0,3).map(n => n.name).filter(Boolean).join(', ');\n    results.push({ json: {\n      workflow_name: workflowName,\n      repository: repo.full_name || '',\n      stars: repo.stargazers_count || 0,\n      nodes: nodes.length,\n      node_types: nodeTypes.length,\n      has_ai: hasAI ? 'Yes' : 'No',\n      key_nodes: keyNodes || 'N/A',\n      description: (repo.description || '').substring(0,200),\n      repo_url: repo.html_url || '',\n      file_url: splitItem.json.html_url || '',\n      _sort_stars: repo.stargazers_count || 0\n    }});\n  } catch {}\n}\nresults.sort((a,b)=>b.json._sort_stars-a.json._sort_stars);\nreturn results.length ? results : [{json:{error:'No workflows found',message:'Adjust the search query'}}];"
       },
-      "id": "d82d13cf-1d33-4e5b-ab7e-bff27de5213b",
+      "id": "9df2b0ad-e26c-4658-8241-94993149b904",
       "name": "Process Workflows1",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
       "position": [
-        4816,
-        2464
-      ]
+        -672,
+        128
+      ],
+      "typeVersion": 2
     },
     {
       "parameters": {
         "aggregate": "aggregateAllItemData",
         "options": {}
       },
-      "id": "e19ba99c-5c5e-4e70-97da-715c962ab19f",
+      "id": "ac6d2def-02c9-47e9-b5fb-a3a2cc7e597a",
       "name": "Aggregate All1",
       "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
       "position": [
-        5040,
-        2464
-      ]
+        -448,
+        128
+      ],
+      "typeVersion": 1
     },
     {
       "parameters": {
         "jsCode": "let workflows = $json.data || [];\nlet topCount = ($nodes['Config'].data?.json?.ai_analysis_top) || 10;\nconst toS = v => (v==null?'':String(v));\nconst clean = (s,max=240)=>toS(s).replace(/[^\\x00-\\x7F]/g,'').replace(/\\s+/g,' ').trim().slice(0,max);\nconst n = v => Number.isFinite(Number(v))?Number(v):0;\nconst top = workflows.slice(0, topCount);\nconst items = top.map((w,i)=>`${i+1}. ${clean(w.workflow_name,120)}\\n   Repository: ${clean(w.repository,120)}\\n   Nodes: ${n(w.nodes)}, Stars: ${n(w.stars)}\\n   Key Nodes: ${clean(w.key_nodes,160)}\\n   Description: ${clean(w.description,220)}`);\nconst prompt = `Analyze the following n8n workflows and provide brief insights.\\nAlways respond in ENGLISH (en-US) only. If any input text is not English, translate it to concise English first.\\n\\n${items.join('\\n\\n')}\\n\\nFor each workflow, provide:\\n- description: one sentence (<= 25 words)\\n- use_case: one sentence (<= 20 words)\\n- difficulty: one of [\"Beginner\",\"Intermediate\",\"Advanced\"]\\n\\nSTRICT OUTPUT REQUIREMENTS:\\n- Return ONLY a valid JSON array (no markdown)\\n- ASCII characters only\\n- Schema example: [{\"index\":1,\"description\":\"...\",\"use_case\":\"...\",\"difficulty\":\"Beginner\"}]`;\nreturn [{json:{prompt, all_workflows:workflows, analyzed_count: top.length, total_count: workflows.length}}];"
       },
-      "id": "0b287f00-445c-4a4b-9203-558e08a2b035",
+      "id": "341aae78-be07-49e1-915c-f00aab142c06",
       "name": "Prepare AI Analysis1",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
       "position": [
-        5264,
-        2464
-      ]
+        -224,
+        128
+      ],
+      "typeVersion": 2
     },
     {
       "parameters": {
@@ -224,85 +209,53 @@
           "systemMessage": "You are a workflow analyst. Return ONLY a valid JSON array where each item has exactly: index (int), description (string), use_case (string), difficulty (\"Beginner\"|\"Intermediate\"|\"Advanced\"). No extra fields or prose."
         }
       },
-      "id": "6a745c08-d7b3-490f-b7c4-af293a0847c5",
+      "id": "9782df9b-1a17-4630-aa12-74cedb62fb1f",
       "name": "AI Analysis1",
       "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.6,
       "position": [
-        5488,
-        2464
-      ]
+        0,
+        128
+      ],
+      "typeVersion": 1.6
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "3a6198bd-b06f-4af6-8179-af225910badd",
+      "id": "24386018-3b8b-4ac6-a80c-f3cee3c68356",
       "name": "OpenAI Chat Model1",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1,
       "position": [
-        5504,
-        2688
-      ]
+        8,
+        352
+      ],
+      "typeVersion": 1
     },
     {
       "parameters": {
         "jsonSchemaExample": "[{\"index\":1,\"description\":\"string\",\"use_case\":\"string\",\"difficulty\":\"Beginner|Intermediate|Advanced\"}]"
       },
-      "id": "cec888f6-7d75-4933-8b3d-63aaf3e3b144",
+      "id": "24ba95a3-73f5-44a1-82d4-7a4965b16a1d",
       "name": "Structured Output Parser1",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
       "position": [
-        5632,
-        2688
-      ]
+        136,
+        352
+      ],
+      "typeVersion": 1.2
     },
     {
       "parameters": {
         "jsCode": "const aiOutput = $input.first().json; const prep = $('Prepare AI Analysis1').first().json; const all = prep.all_workflows||[]; const topN = Number(prep.analyzed_count||0);\nlet arr=[]; try{const raw=aiOutput.output??aiOutput; arr=Array.isArray(raw)?raw:JSON.parse(raw);}catch{arr=[]}\nconst map=new Map(); for(const it of arr){ if(it&&Number.isFinite(Number(it.index))) map.set(Number(it.index)-1,it); }\nconst S=v=>v==null?'':String(v); const clean=s=>S(s).replace(/[^\\x00-\\x7F]/g,'').replace(/\\s+/g,' ').trim();\nreturn all.map((wf,i)=>{ const a=i<topN?map.get(i):undefined; const aiDesc=clean(a?.description||''); const finalDesc=clean(wf.description||'')||aiDesc; const use=i<topN?clean(a?.use_case||''):''; const diff=i<topN?clean(a?.difficulty||''):'';\n  return {json:{workflow_name:wf.workflow_name,repository:wf.repository,stars:wf.stars,nodes:wf.nodes,node_types:wf.node_types,has_ai:wf.has_ai,key_nodes:wf.key_nodes,description:finalDesc,repo_url:wf.repo_url,file_url:wf.file_url,ai_description:aiDesc,ai_use_case:use,ai_difficulty:diff}}; });"
       },
-      "id": "ef673aa2-3bf0-4d27-bacc-47da740e7499",
+      "id": "a8305a37-6dd2-4c74-9a0a-9a2a812cb237",
       "name": "Merge AI Results1",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
       "position": [
-        5840,
-        2464
-      ]
-    },
-    {
-      "parameters": {
-        "content": "## Setup checklist\n- Add **GitHub** header on both HTTP nodes: `Authorization: Bearer YOUR_TOKEN`\n- Connect **OpenAI** credential to **OpenAI Chat Model**\n- Connect **Google Sheets** credential to **Save to Google Sheets**\n- In **Config**, set:\n  - `search_query` (e.g., `\"openai\" extension:json n8n`)\n  - `max_results` (1–100)\n  - `ai_analysis_top` (controls AI cost)\n- Enter your **Spreadsheet ID** in **Save to Google Sheets**\n- (Optional) Enable **Schedule Trigger** for weekly auto-discovery",
-        "height": 256,
-        "width": 608,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        3664,
-        1920
+        352,
+        128
       ],
-      "typeVersion": 1,
-      "id": "53c227ee-da1c-4c37-bfdf-0e4fe6a68adf",
-      "name": "Sticky Note4"
-    },
-    {
-      "parameters": {
-        "content": "## Security & review\n- 🔐 No hardcoded secrets in HTTP nodes — use the credential manager.\n- 🗑️ Remove personal IDs (spreadsheet IDs, emails) before publishing.\n- 📝 Keep descriptions in **Markdown** format with **H2 headings** (no HTML tags).\n- ✅ Use descriptive titles (e.g., “GitHub Workflow Finder with AI Analysis”) for SEO clarity.\n- 🧪 Test with a small `max_results` first before scaling up.\n- 🧭 In Google Sheets, filter by **AI Powered** and **Stars** to surface top workflows.\n\n**Author:** Yusuke M. (@yskautomation) — MIT License",
-        "height": 256,
-        "width": 608,
-        "color": 7
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        3664,
-        2192
-      ],
-      "typeVersion": 1,
-      "id": "10df767b-ce8c-435e-99bc-6c057097aa24",
-      "name": "Sticky Note5"
+      "typeVersion": 2
     },
     {
       "parameters": {
@@ -310,21 +263,21 @@
         "documentId": "={{ $('Config1').item.json.SPREADSHEET_ID }}",
         "sheetName": "={{ $('Config1').item.json.SHEET_NAME }}",
         "columns": {
-          "mappingMode": "defineBelow",
           "value": {
-            "Workflow": "={{ $json.workflow_name }}",
-            "Repository": "={{ $json.repository }}",
-            "Stars": "={{ $json.stars }}",
             "Nodes": "={{ $json.nodes }}",
-            "Node Types": "={{ $json.node_types }}",
-            "AI Powered": "={{ $json.has_ai }}",
-            "Key Nodes": "={{ $json.key_nodes }}",
-            "Use Case": "={{ $json.ai_use_case }}",
-            "Difficulty": "={{ $json.ai_difficulty }}",
-            "Repo URL": "={{ $json.repo_url }}",
+            "Stars": "={{ $json.stars }}",
             "File URL": "={{ $json.file_url }}",
-            "AI Summary": "={{ $json.description }}"
+            "Repo URL": "={{ $json.repo_url }}",
+            "Use Case": "={{ $json.ai_use_case }}",
+            "Workflow": "={{ $json.workflow_name }}",
+            "Key Nodes": "={{ $json.key_nodes }}",
+            "AI Powered": "={{ $json.has_ai }}",
+            "AI Summary": "={{ $json.description }}",
+            "Difficulty": "={{ $json.ai_difficulty }}",
+            "Node Types": "={{ $json.node_types }}",
+            "Repository": "={{ $json.repository }}"
           },
+          "mappingMode": "defineBelow",
           "matchingColumns": [
             "Workflow"
           ],
@@ -333,14 +286,107 @@
         },
         "options": {}
       },
-      "id": "88a2583d-ef2e-4c8c-9c70-ead11027a651",
+      "id": "90b1957e-816a-451a-a0ea-4b15de25dae9",
       "name": "Save to Google Sheets",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
       "position": [
-        6064,
-        2464
-      ]
+        576,
+        32
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "content": "## GitHub Workflow Analyzer — Overview\n**What it does**\nThis workflow automatically finds public n8n workflows on GitHub, analyzes them with AI, and logs the insights (description, use case, difficulty) into Google Sheets. You can optionally sync selected results into Notion for curation.\n\n**Flow summary**\n1️⃣ Fetch workflows → 2️⃣ Analyze with AI → 3️⃣ Save results\n\n**Who it’s for**\n- n8n creators exploring workflow ideas\n- Automation researchers tracking AI adoption\n- Anyone curating examples for learning or content\n\n💡 Keep it simple: once connected, it runs by itself on a schedule.",
+        "height": 440,
+        "width": 560,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2368,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "797c78a7-d273-430b-9a36-9b3305a783b4",
+      "name": "Sticky: Overview (yellow)"
+    },
+    {
+      "parameters": {
+        "content": "## STEP 1 — Fetch & Parse Workflows\n1. Search GitHub for public n8n JSON files (`extension:json n8n in:file`).\n2. Fetch each file’s content via GitHub API.\n3. Parse nodes, count types, and flag AI-powered flows.\n\n🧠 Tip: Use a smaller `max_results` (10–20) for faster runs while testing.",
+        "height": 224,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "68335719-9bc1-4a17-8704-e8f43747d310",
+      "name": "Sticky: Step 1 — Fetch & Parse"
+    },
+    {
+      "parameters": {
+        "content": "## STEP 2 — AI Analysis\nThe workflow sends the top workflows to an LLM (OpenAI or any supported model).\nIt generates short summaries with three fields:\n- `description` → one-sentence summary\n- `use_case` → what the workflow is for\n- `difficulty` → Beginner / Intermediate / Advanced\n\n⚙️ The structured parser ensures valid JSON — no broken outputs.",
+        "height": 256,
+        "width": 480
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "867f6b02-8731-4d0f-a1e9-abb12a38be41",
+      "name": "Sticky: Step 2 — AI Analysis"
+    },
+    {
+      "parameters": {
+        "content": "## STEP 3 — Save & Share\n1. Results are appended or updated in Google Sheets.\n2. (Optional) Create Notion pages for handpicked workflows.\n\n🪄 You can filter by stars, keywords, or difficulty to curate your own public gallery.\n\n💾 Spreadsheet columns auto-sync when names match exactly.",
+        "height": 240,
+        "width": 448
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        -256
+      ],
+      "typeVersion": 1,
+      "id": "c5a9bf2a-ba46-4c6d-8878-869572c7cb7e",
+      "name": "Sticky: Step 3 — Save & Share"
+    },
+    {
+      "parameters": {
+        "content": "## Setup checklist (3–5 min)\n1️⃣ **GitHub** → Add header `Authorization: Bearer <token>` in *GitHub Search* & *Fetch JSON*.\n2️⃣ **OpenAI** → Connect to the *Chat Model* node.\n3️⃣ **Google Sheets** → Paste your `Spreadsheet ID` and `Sheet Name` in *Config*.\n4️⃣ (Optional) **Notion** → Choose your database in *Create Page*.\n5️⃣ Test with a small batch before scaling up.",
+        "height": 300,
+        "width": 480,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2352,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "4dce4b29-cbec-44b4-a18a-0e70f4a9dedc",
+      "name": "Sticky: Setup Checklist"
+    },
+    {
+      "parameters": {
+        "content": "## Troubleshooting\n- **401/403 GitHub** → Token or headers missing.\n- **No results** → Adjust query or increase `max_results`.\n- **AI error** → Reduce prompt size or `ai_analysis_top`.\n- **Sheet mismatch** → Check column names.\n\n📘 Tip: Keep your credentials secure via n8n’s *Credentials* tab — never hardcode keys.",
+        "height": 260,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2336,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "4112f328-b6f6-4b75-a327-c8a83d1e3a1f",
+      "name": "Sticky: Troubleshooting1"
     }
   ],
   "connections": {
