@@ -1,0 +1,527 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Triggers\nRun this workflow manually or on a schedule.\n\nPerfect for founders who want to quickly pull lead lists from Google Maps.",
+        "height": 300,
+        "width": 260,
+        "color": 7
+      },
+      "id": "1861f4e0-1dac-44d0-b5f6-8acd08315326",
+      "name": "Sticky Note - Triggers",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Settings\n1. Paste your Google Sheets URL.\n2. Set the Zips sheet name (zip + status columns).\n3. Set the Results sheet name.\n4. Set what you want to search (e.g. \"coffee shop\", \"gym\", \"clinic\").",
+        "height": 320,
+        "width": 260,
+        "color": 3
+      },
+      "id": "34f4c96a-0e13-453f-afb1-a35970a83722",
+      "name": "Sticky Note - Settings",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Data Prep\nWe read your Zip list from Sheets.\n\nOnly rows where `status` is empty will be processed.\n\nThis keeps things clean and idempotent for busy founders.",
+        "height": 300,
+        "width": 260,
+        "color": 4
+      },
+      "id": "a9b49c6c-cb0d-45a1-94d7-5096d91abffe",
+      "name": "Sticky Note - Data Prep",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Google Maps API\nFor each Zip:\n1. Build a search query (e.g. \"coffee shop 85001\").\n2. Call Google Places API.\n3. Store basic business info into the Results sheet.\n\nThis becomes a lightweight lead list for founders.",
+        "height": 360,
+        "width": 320,
+        "color": 5
+      },
+      "id": "0966d133-5c4a-4059-8dd9-e74772cf80ac",
+      "name": "Sticky Note - Google Maps Search",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -272
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b38ca324-30ec-446a-b7e8-f4793c0d97d2",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "gs_url",
+              "name": "gs_url",
+              "type": "string",
+              "value": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_HERE/edit#gid=0"
+            },
+            {
+              "id": "sheet_zips",
+              "name": "sheet_zips",
+              "type": "string",
+              "value": "Zips"
+            },
+            {
+              "id": "sheet_results",
+              "name": "sheet_results",
+              "type": "string",
+              "value": "Results"
+            },
+            {
+              "id": "queryType",
+              "name": "queryType",
+              "type": "string",
+              "value": "coffee shop"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d275d631-ba0d-4acb-80c5-9f05eaee23b6",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Settings').item.json.gs_url }}",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com(?:\\/.*|)\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').item.json.sheet_zips }}"
+        },
+        "options": {}
+      },
+      "id": "f2cfd644-f520-4cb2-bcc2-cbd2fd633cf4",
+      "name": "GS - Get Zip Codes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-status-empty",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "401266c0-f03a-43b8-8175-8207501200ed",
+      "name": "Filter Unprocessed Zips",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "id": "67dc83e7-1aa8-448e-9664-6be5db749947",
+      "name": "Limit (10 per run)",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        432,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c354cb59-72b9-4654-89b6-ca92c0d355c6",
+      "name": "Loop Zips",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        656,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "zip-field",
+              "name": "zip",
+              "type": "number",
+              "value": "={{ $json.zip }}"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "bbe7f7cd-698a-46d3-b48c-af1693dc672a",
+      "name": "Set Zip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turn places[] into one item per place\nconst places = items[0]?.json?.body?.places || [];\nconst zip = items[0]?.json?.zip;\n\nconst output = [];\nfor (const p of places) {\n  output.push({\n    json: {\n      zip,\n      name: p.displayName?.text || '',\n      address: p.formattedAddress || '',\n      phone: p.nationalPhoneNumber || '',\n      rating: p.rating || null,\n      website: p.websiteUri || ''\n    }\n  });\n}\n\nreturn output.length ? output : [{ json: { zip, name: null, address: null, phone: null, rating: null, website: null } }];"
+      },
+      "id": "420f9053-4c5d-452f-bef2-3068c4700168",
+      "name": "Expand Places",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Settings').first().json.gs_url }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheet_results }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "zip": "={{ $json.zip }}",
+            "name": "={{ $json.name }}",
+            "address": "={{ $json.address }}",
+            "phone": "={{ $json.phone }}",
+            "rating": "={{ $json.rating }}",
+            "website": "={{ $json.website }}"
+          },
+          "schema": [
+            {
+              "id": "zip",
+              "type": "string",
+              "displayName": "zip",
+              "display": true
+            },
+            {
+              "id": "name",
+              "type": "string",
+              "displayName": "name",
+              "display": true
+            },
+            {
+              "id": "address",
+              "type": "string",
+              "displayName": "address",
+              "display": true
+            },
+            {
+              "id": "phone",
+              "type": "string",
+              "displayName": "phone",
+              "display": true
+            },
+            {
+              "id": "rating",
+              "type": "string",
+              "displayName": "rating",
+              "display": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "displayName": "website",
+              "display": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9d34176e-7034-4edd-95f3-95bee6197567",
+      "name": "Append Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        1552,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Settings').first().json.gs_url }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheet_zips }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "zip"
+          ],
+          "value": {
+            "zip": "={{ $json.zip }}",
+            "status": "scraped"
+          },
+          "schema": [
+            {
+              "id": "zip",
+              "type": "string",
+              "displayName": "zip",
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "displayName": "status",
+              "display": true,
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1822ec13-0273-441c-b67e-e292bc80f153",
+      "name": "Update Zip Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        1776,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText?key={{GOOGLE_MAPS_API_KEY}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.rating,places.websiteUri"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "textQuery",
+              "value": "={{ $('Settings').first().json.queryType + ' ' + $json.zip }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "6d59a663-a79a-4e05-9895-4a9e7460b524",
+      "name": "Search Places (Google Maps)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        224
+      ]
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "GS - Get Zip Codes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GS - Get Zip Codes": {
+      "main": [
+        [
+          {
+            "node": "Filter Unprocessed Zips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Unprocessed Zips": {
+      "main": [
+        [
+          {
+            "node": "Limit (10 per run)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit (10 per run)": {
+      "main": [
+        [
+          {
+            "node": "Loop Zips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Zips": {
+      "main": [
+        [
+          {
+            "node": "Set Zip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GS - Get Zip Codes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Zip": {
+      "main": [
+        [
+          {
+            "node": "Search Places (Google Maps)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Places": {
+      "main": [
+        [
+          {
+            "node": "Append Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Results": {
+      "main": [
+        [
+          {
+            "node": "Update Zip Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Places (Google Maps)1": {
+      "main": [
+        [
+          {
+            "node": "Expand Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
