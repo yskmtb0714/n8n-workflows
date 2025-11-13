@@ -34,7 +34,7 @@ Perfect for creators building:
 [⬇️ `google-maps-lead-builder.json`](./google-maps-lead-builder.json)
 
 👉 **Full guide & LP:**  
-https://rag-whisperer-studio.lovable.app
+https://ysk-automation.com
 
 ---
 
