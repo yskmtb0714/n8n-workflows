@@ -1,0 +1,362 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## How it works\nPaste any website URL into the form. n8n fetches the page HTML, sends a trimmed version to an AI model, and gets back a structured Markdown report (title + key points). The report is saved into a Notion database and also shown in the browser.\n\n## Setup steps\n1) Connect **OpenAI** (or compatible) in the Chat Model node.\n2) Connect **Notion** and set your **Database ID** in the Notion node.\n3) Make sure your Notion DB has properties: `Name` (title), `URL` (url), `Summary` (rich text).\n4) Activate the workflow and open the Form trigger URL.",
+        "height": 360,
+        "width": 460,
+        "color": 7
+      },
+      "id": "50ace086-5cf4-4be8-89cb-c50654b91b62",
+      "name": "Sticky: Overview (yellow)1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        1424
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Flow\n1) Form: user submits URL\n2) Fetch HTML\n3) AI turns HTML → report_title + summary_markdown\n4) Create Notion page\n5) Show report in browser",
+        "height": 220,
+        "width": 420
+      },
+      "id": "38903cc8-aa35-4f57-afb3-83a870df55d9",
+      "name": "Sticky: Flow1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        816,
+        1440
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "formTitle": "Website → AI Summary → Notion",
+        "formDescription": "Paste a URL, get an AI-generated summary and auto-save it to Notion.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "url",
+              "placeholder": "https://example.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "title_override",
+              "placeholder": "Optional custom report title"
+            },
+            {
+              "fieldLabel": "notes",
+              "fieldType": "textarea",
+              "placeholder": "Optional context: what you want from this page"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a031e146-de34-4deb-8140-7ab57464d0ea",
+      "name": "Form: URL → AI Summary1",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        576,
+        1824
+      ],
+      "webhookId": "357cd98b-41db-412e-8f74-e748830cb28f",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c65c4a1-4919-4281-be3d-5b615d46f508",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "3f782756-d214-4706-bc18-3ec0d33b6963",
+              "name": "title_override",
+              "value": "={{ $json.title_override }}",
+              "type": "string"
+            },
+            {
+              "id": "22e79df9-8911-438e-9133-68e84056415d",
+              "name": "notes",
+              "value": "={{ $json.notes }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0780fc96-fc22-47e4-9580-8b43116b0d55",
+      "name": "Normalize Input1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        800,
+        1824
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {},
+          "timeout": 15000
+        }
+      },
+      "id": "c580bfe0-7a29-4001-8e30-134f680b8954",
+      "name": "Fetch HTML1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1024,
+        1824
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (() => {\n  const html = String($json.data || '');\n  const base = $items('Normalize Input1')[0].json;\n  return {\n    url: base.url,\n    title_override: base.title_override || '',\n    notes: base.notes || '',\n    html: html.substring(0, 15000),\n  };\n})() }}",
+        "options": {}
+      },
+      "id": "70897a3e-a8c7-4e51-8f86-edd6921b2e4f",
+      "name": "Prep For AI1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1248,
+        1824
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a research assistant that turns raw HTML into a clean report.\n\nInput:\n- URL: {{ $json.url }}\n- User notes (optional): {{ $json.notes }}\n- HTML content (truncated): {{ $json.html }}\n\nTask:\n1) Read the page content from the HTML.\n2) Create a concise, informative report in Markdown for a busy founder.\n3) Include:\n   - A clear report_title (short, human-readable)\n   - A summary_markdown body with:\n     - Key sections as headings\n     - Bullet points for the most important insights\n     - Optional action items (if obvious)\n\nOutput:\nReturn ONLY valid JSON (no prose) with this exact shape:\n{\n  \"report_title\": \"string\",\n  \"summary_markdown\": \"string\"\n}\n",
+        "options": {
+          "systemMessage": "You return ONLY compact JSON. No backticks, no explanations, ASCII-safe."
+        }
+      },
+      "id": "2a4024fd-6387-4dea-bb91-5bb4469c889c",
+      "name": "Summarize Page (AI)1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1472,
+        1824
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nlet raw = input.output ?? input;\n\nif (typeof raw !== 'string') {\n  raw = JSON.stringify(raw);\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    report_title: 'AI Report',\n    summary_markdown: raw,\n  };\n}\n\nconst base = $items('Prep For AI1')[0].json;\n\n// Convert markdown to plain text\nconst md = parsed.summary_markdown || '';\nlet plain = md\n  .replace(/^#{1,6}\\s+/gm, '')\n  .replace(/^-\\s+/gm, '')\n  .replace(/\\*\\*/g, '')\n  .replace(/\\*/g, '')\n  .replace(/`/g, '')\n  .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '$1 ($2)');\n\nplain = plain.trim();\n\nreturn [{\n  json: {\n    url: base.url,\n    notes: base.notes || '',\n    title_override: base.title_override || '',\n    report_title: parsed.report_title || (base.title_override || 'AI Report'),\n    summary_markdown: md,\n    summary_plain: plain\n  }\n}];"
+      },
+      "id": "51413f6b-bf47-4b92-a080-ac3edea267ff",
+      "name": "Parse AI JSON1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1824,
+        1824
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "YOUR_NOTION_DATABASE_ID",
+          "mode": "id"
+        },
+        "title": "={{ $json.report_title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "URL",
+              "urlValue": "={{ $json.url }}"
+            },
+            {
+              "key": "Summary",
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $json.summary_plain }}",
+                    "annotationUi": {}
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e8a14e2e-f16a-471a-8c21-61471ecc95d6",
+      "name": "Create Notion Page1",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2048,
+        1824
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "=={{ JSON.stringify({\n  completionTitle: $json.property_name || 'AI Report',\n  completionMessage:\n    '<div style=\"font-family:sans-serif; line-height:1.5; max-width:720px; margin:0 auto;\">'\n    + '  <p><a href=\"' + ($json.property_url || '') + '\" target=\"_blank\">'\n    +        ($json.property_url || '') + '</a></p>'\n    + '  <hr/>'\n    + '  <div style=\"font-family:monospace; white-space:pre-wrap;\">'\n    +       String($json.property_summary || '')\n              .replace(/</g, '&lt;')\n              .replace(/\\r?\\n/g, '<br/>')\n    + '  </div>'\n    + '</div>'\n}) }}",
+        "options": {}
+      },
+      "id": "46625597-bd41-4669-8b72-a415deedbd1e",
+      "name": "Format Result Page1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2272,
+        1824
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "={{ $json.completionTitle }}",
+        "completionMessage": "={{ $json.completionMessage }}",
+        "options": {}
+      },
+      "id": "99d404a9-55da-4f7c-8cf6-399a09057d41",
+      "name": "End Page (browser)1",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2496,
+        1824
+      ],
+      "webhookId": "url-to-ai-summary-result",
+      "typeVersion": 2.3
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1544,
+        2048
+      ],
+      "id": "c76375a5-7809-42d7-92aa-54655e753433",
+      "name": "OpenAI Chat Model1"
+    }
+  ],
+  "connections": {
+    "Form: URL → AI Summary1": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input1": {
+      "main": [
+        [
+          {
+            "node": "Fetch HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch HTML1": {
+      "main": [
+        [
+          {
+            "node": "Prep For AI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep For AI1": {
+      "main": [
+        [
+          {
+            "node": "Summarize Page (AI)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Page (AI)1": {
+      "main": [
+        [
+          {
+            "node": "Parse AI JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI JSON1": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Notion Page1": {
+      "main": [
+        [
+          {
+            "node": "Format Result Page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Result Page1": {
+      "main": [
+        [
+          {
+            "node": "End Page (browser)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Page (AI)1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
