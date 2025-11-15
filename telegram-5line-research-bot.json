@@ -1,0 +1,242 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## How it works\nUser submits a **goal** (e.g. “find 3 competitor tools”). The agent plans the task, reasons through steps, and returns a clean markdown report.\n\n## Setup steps\n1) Connect **OpenAI** (or compatible) in the Chat Model node.\n2) Activate the **Form: Agent Task** trigger and open its URL.\n3) Submit a goal + optional context.\n4) The agent responds with `report_title` + `summary_markdown`, shown in the browser.",
+        "height": 320,
+        "width": 460,
+        "color": 7
+      },
+      "id": "62b8f56f-b930-4660-b1b2-765482a8049e",
+      "name": "Sticky: Overview (yellow)",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Flow\n1) User: goal + context\n2) Agent: plan → reason → draft answer\n3) Output: markdown report in browser",
+        "height": 200,
+        "width": 420
+      },
+      "id": "b58e25f0-84c8-40fe-87f5-2d6ee273f06e",
+      "name": "Sticky: Flow",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "1fbb7829-19a7-456b-bfd2-b0094b12a6a0",
+      "name": "Listen for questions",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        640,
+        68
+      ],
+      "webhookId": "telegram-5line-research-bot-trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "a65cc27e-aaf0-49f3-8993-1692bc1e3c47",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/start",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e5e971b2-dd6e-4900-ac54-ac1b2bdae98c",
+      "name": "Route: Command or Question",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        864,
+        68
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for questions').first().json.message.chat.id }}",
+        "text": "={{ '<b>5-line Research Bot</b>\\n\\nSend me any question, topic, or link, and I will reply with a concise 5-line summary you can read on your phone.\\n\\nExamples:\\n- \"Summarize today\\'s news on AI regulation\"\\n- \"Pros and cons of n8n vs Zapier\"\\n- \"Key points of the latest OpenAI update\"' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "66655a29-50dd-476b-864e-86034cdf9147",
+      "name": "Reply in Telegram (command)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        -80
+      ],
+      "webhookId": "telegram-5line-research-bot-command"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "id": "f0a49dc9-65e6-41ce-a55c-95995f91f22c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1096,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI research assistant that answers in up to 5 short lines.\n\nUser question:\n{{ $json.message.text }}\n\nYou have access to a tool called \"RSS Read\".\n- It accepts: { \"url\": \"<rss_feed_url>\" }\n- It returns the latest articles from that RSS feed.\n\nYour decision rules:\n- If the question asks for *recent*, *latest*, *today*, *this week*, or *news* → you MAY call the RSS tool.\n- For all other questions, DO NOT call the RSS tool.\n\nImportant:\n- Never explain your reasoning.\n- Never mention whether you did or did not use RSS.\n- Never output meta commentary like “I don’t need recent news”.\n- Only output the final 5-line answer.\n\nOutput format:\n- Maximum 5 short lines.\n- Each line is a simple sentence.\n- No bullets, no Markdown, no emojis.\n- Do NOT include reasoning, disclaimers, or process descriptions.\n\nNow generate your 5-line answer to the user.",
+        "options": {
+          "systemMessage": "You are a concise research assistant. You always answer in at most 5 short lines of plain text, optimized for a smartphone chat UI. Do not use Markdown, bullets, emojis, or formatting tags. Just simple sentences separated by line breaks."
+        }
+      },
+      "id": "7d8a67c8-73ea-4b0d-82af-897f968daa85",
+      "name": "Agent: Plan & Research1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        1088,
+        216
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for questions').first().json.message.chat.id }}",
+        "text": "={{ (() => {\n  // LLM の生出力\n  const raw = String($json.output || '');\n\n  // HTML エスケープ（バグ修正済み）\n  const safe = raw\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n\n  // 行に分割し、空行を削除\n  const lines = safe.split(/\\r?\\n/).filter(l => l.trim());\n\n  // 最大 5 行\n  const limited = lines.slice(0, 5);\n  if (!limited.length) return '<b>Summary</b>';\n\n  const title = limited[0];\n  const bodyLines = limited.slice(1);\n\n  if (!bodyLines.length) {\n    // 1 行だけのときは全部太字\n    return '<b>' + title + '</b>';\n  }\n\n  // 行と行の間に 1 行空ける\n  const body = bodyLines.join('\\n\\n');\n\n  // Telegram の HTML モードで正しく改行される形式\n  return '<b>' + title + '</b>' + '\\n\\n' + body;\n})() }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "a4e4da1f-aa19-4223-bfd8-c16ce8bccbc2",
+      "name": "Reply in Telegram (answer)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        216
+      ],
+      "webhookId": "telegram-5line-research-bot-reply"
+    },
+    {
+      "parameters": {
+        "url": "=https://venturebeat.com/category/ai/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedReadTool",
+      "typeVersion": 1.2,
+      "position": [
+        1224,
+        440
+      ],
+      "id": "f591d225-b3bd-4c2a-91ea-bb143c12cede",
+      "name": "RSS Read"
+    }
+  ],
+  "connections": {
+    "Listen for questions": {
+      "main": [
+        [
+          {
+            "node": "Route: Command or Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Command or Question": {
+      "main": [
+        [
+          {
+            "node": "Reply in Telegram (command)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent: Plan & Research1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent: Plan & Research1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent: Plan & Research1": {
+      "main": [
+        [
+          {
+            "node": "Reply in Telegram (answer)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent: Plan & Research1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
