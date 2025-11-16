@@ -1,0 +1,281 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "641f7d80-0bbd-4170-8cea-d2ed7ed99048",
+      "name": "Listen for messages",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        80
+      ],
+      "webhookId": "7ef75ee7-923b-42ba-b9b1-014057fa0fef"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = ($json.message && $json.message.text) ? String($json.message.text).trim() : \"\";\n\nlet mode = \"ideas\";\nlet topic = \"\";\n\nif (!msg) {\n  mode = \"start\";\n} else if (msg.startsWith(\"/start\")) {\n  mode = \"start\";\n} else if (msg.startsWith(\"/ideas\")) {\n  mode = \"ideas\";\n  topic = msg.replace(\"/ideas\", \"\").trim();\n} else {\n  mode = \"ideas\";\n  topic = msg;\n}\n\nif (!topic && mode === \"ideas\") {\n  topic = \"AI automation, n8n, and building in public for startup founders and content creators\";\n}\n\nreturn [{ json: { mode, topic, chat_id: $json.message?.chat?.id, original_text: msg } }];"
+      },
+      "id": "32ee32d4-1644-4f12-8a59-d182292f0ee4",
+      "name": "Parse Command & Topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "start",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f8e1cd35-de1d-490d-a5b3-9a5d203aca44",
+      "name": "Is /start ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "<b>Day4: Content Idea + Image Bot</b>\n\nI turn your topic into 10 content ideas + one suggested image URL.\n\n<b>How to use:</b>\n- Send /ideas &lt;topic&gt; to get 10 ideas\n- Or just send a topic message\n\n<b>Example commands:</b>\n/ideas n8n onboarding for SaaS founders\n/ideas AI agents for indie hackers\n/ideas content ideas for automation consultants\n/ideas automation ideas for solopreneurs\n/ideas growth experiments for early-stage SaaS\n/ideas onboarding emails for B2B SaaS\n/ideas lead magnets for automation tools\n/ideas AI workflows for content creators\n/ideas retention tactics with automation\n/ideas behind-the-scenes of building with n8n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "61aec772-366a-4ee5-97d0-acc7fa482f2b",
+      "name": "Reply in Telegram (/start help)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -80
+      ],
+      "webhookId": "6721c694-22d6-4e19-a04e-b3b58e4b42c6"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "id": "907010e2-fc14-46e9-872c-c0c51a8ff235",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content strategist for startup founders.\nUser topic:\n{{ $json.topic }}\n\nYour task:\n- Generate 10 concrete content ideas.\n- One idea per line.\n- No emojis or links.",
+        "options": {
+          "systemMessage": "Output exactly 10 numbered ideas."
+        }
+      },
+      "id": "474da585-a3f3-47d2-8bfa-ed7de9f471da",
+      "name": "Agent: Generate Ideas",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        96,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "url": "https://api.pexels.com/v1/search",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $credentials.pexelsApiKey }}"
+            }
+          ]
+        },
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "query",
+              "value": "={{ $json.topic || 'startup ai automation' }}"
+            },
+            {
+              "name": "per_page",
+              "value": "1"
+            },
+            {
+              "name": "orientation",
+              "value": "landscape"
+            }
+          ]
+        }
+      },
+      "id": "000efb36-4378-4397-8eba-5dd3b7509b0b",
+      "name": "Search Pexels Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        448,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ideasRaw = String($item(0).$node[\"Agent: Generate Ideas\"].json.output || \"\");\n\nlet ideas = ideasRaw.split(/\\r?\\n/).map(l => l.trim()).filter(l => l).join(\"\\n\\n\");\n\nconst p = $json || {};\nlet image = \"\";\nif (p.photos && p.photos[0] && p.photos[0].src) {\n  image = p.photos[0].src.landscape || p.photos[0].src.medium;\n}\n\nlet message = ideas;\nif (image) message += \"\\n\\nSuggested image URL:\\n\" + image;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "f1d3e8fa-e61a-48cd-a29f-2b77e6b34fdb",
+      "name": "Combine Ideas + Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $item(0).$node[\"Parse Command & Topic\"].json.chat_id }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "9c2e95b3-54b7-4cca-b6b4-f8d4e32e2107",
+      "name": "Reply in Telegram (ideas + image)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        224
+      ],
+      "webhookId": "407cc201-6302-477d-8f79-53a9466ff775"
+    }
+  ],
+  "connections": {
+    "Listen for messages": {
+      "main": [
+        [
+          {
+            "node": "Parse Command & Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Command & Topic": {
+      "main": [
+        [
+          {
+            "node": "Is /start ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is /start ?": {
+      "main": [
+        [
+          {
+            "node": "Reply in Telegram (/start help)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent: Generate Ideas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent: Generate Ideas",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent: Generate Ideas": {
+      "main": [
+        [
+          {
+            "node": "Search Pexels Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Pexels Image": {
+      "main": [
+        [
+          {
+            "node": "Combine Ideas + Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Ideas + Image": {
+      "main": [
+        [
+          {
+            "node": "Reply in Telegram (ideas + image)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
