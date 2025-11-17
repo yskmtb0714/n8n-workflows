@@ -1,0 +1,108 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "📌 SaaS Founder Dashboard — Backend\n\n1) Replace the Google Sheet with your own copy (same columns).\n2) Connect **your own** Google Sheets OAuth2 credential in this node.\n3) Use the **production** webhook URL from the Webhook node in Lovable’s “Refresh Data” button.\n4) Lovable should send a POST request to this webhook and render only the parsed metrics (no raw JSON).",
+        "height": 260,
+        "width": 420
+      },
+      "id": "85f03ed2-e54e-4878-b1da-3ae35be1f710",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        272,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fbcaf4e5-6e44-4443-a1c9-1324519240b6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        672
+      ],
+      "id": "7956b681-a8f6-48af-8706-4f89dd4edfca",
+      "name": "Webhook1",
+      "webhookId": "fbcaf4e5-6e44-4443-a1c9-1324519240b6"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc",
+          "mode": "list",
+          "cachedResultName": "SaaS Founder Dashboard — Sample Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        672
+      ],
+      "id": "1dc2a4e8-c78c-413f-8db1-ea34fc0915fa",
+      "name": "Get row(s) in sheet1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        672
+      ],
+      "id": "e50bbe85-028c-4bb7-90e4-0f9f8ae768de",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
