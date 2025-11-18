@@ -1,0 +1,230 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "📌 SaaS Founder Dashboard — Backend\n\n1) Replace the Google Sheet with your own copy (same columns).\n2) Connect **your own** Google Sheets OAuth2 credential in this node.\n3) Use the **production** webhook URL from the Webhook node in Lovable’s “Refresh Data” button.\n4) Lovable should send a POST request to this webhook and render only the parsed metrics (no raw JSON).",
+        "height": 260,
+        "width": 420
+      },
+      "id": "3e7d6724-c724-4e66-a110-31d05cb45a7f",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fbcaf4e5-6e44-4443-a1c9-1324519240b6",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fa1ffd16-d93a-436b-ac0c-921bd47357fb",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        -112
+      ],
+      "webhookId": "fbcaf4e5-6e44-4443-a1c9-1324519240b6"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc",
+          "mode": "list",
+          "cachedResultName": "SaaS Founder Dashboard — Sample Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uuU0pQDUABxR7SXg1FfuVNNX0kmT_67fytUI0voL4Nc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "3b1eba14-a2e6-4f7a-939a-dd1dfd5b5add",
+      "name": "Get row(s) in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "c1dc95fa-2d50-4aee-97f1-f72cf328950c",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "saas-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8737af1e-f1b9-46fd-861a-e1595f4bc945",
+      "name": "Chat Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        224
+      ],
+      "webhookId": "86f26adf-4256-4934-b633-765f28ab6d44"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "==You are a SaaS Founder Strategy Assistant.\n\nYou always receive:\n- message: the founder's natural-language question\n- metrics: a JSON object with fully calculated SaaS metrics, sent from the dashboard UI\n\nHere are the current metrics from the dashboard (JSON):\n{{$json.body.metrics ? JSON.stringify($json.body.metrics) : \"NO_METRICS_IN_PAYLOAD\"}}\n\nHere is the founder's question:\n\"{{$json.body.message}}\"\n\nYour job:\n- Use ONLY the metrics above as ground truth.\n- Do NOT recalculate MRR, churn, trials, or customer counts.\n- Do NOT ask the user to resend metrics.\n- Do NOT call any external tools or spreadsheets.\n\nInstead:\n- Give concise, tactical, actionable strategy for growing the SaaS,\n- Tailored to these metrics and this question.",
+        "options": {
+          "systemMessage": "You are a SaaS Strategy AI.\n\nYou always receive a `metrics` JSON object in the incoming payload.\nAssume metrics are already included and correct.\nNever ask the user to resend metrics.\nNever say metrics are missing.\nFocus only on strategy, insights, and recommendations."
+        }
+      },
+      "id": "a9e7b3ae-3b3e-44a2-8166-57b30ca0d7ec",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4a516103-5828-48cb-b50c-9f9aba355e31",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "founder_chat_session",
+        "contextWindowLength": 30
+      },
+      "id": "b54ef6f5-9122-4abd-8a46-b8d8defc1a4e",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "05834508-2fac-4980-a480-6f53ab1d995a",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        224
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
