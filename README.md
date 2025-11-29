@@ -1,95 +1,147 @@
-# 🚀 n8n Workflows by Yusuke
+# 🚀 LP Scoring API — n8n + Gemini 3 Pro
 
-Curated collection of **AI & automation workflows** built with [n8n](https://n8n.io)  
-by **Yusuke (@yskautomation)** — designed for creators, founders, and automation-first builders.
+The flagship workflow of this repository.
+A production-ready, API-first landing page analysis engine powered by n8n + LLM reasoning.
 
----
-
-## 💡 Overview
-
-This repository includes my public **n8n templates**, focused on:
-- AI-driven automation  
-- Lead generation workflows  
-- RAG-powered content pipelines  
-- High-leverage systems that scale without human overhead  
-
-Each workflow is **self-contained** and ready to import into n8n (Cloud or Self-Hosted).
-
-> All templates are MIT-licensed.  
-> Verified / under review by the official n8n Creator Team.
+Built publicly by Yusuke (@yskautomation) — AI Automation Architect.
 
 ---
 
-## 📦 Featured Template (NEW)
+# 🔥 Why This Workflow Matters
 
-### 🔍 **Google Maps → Lead List Builder (AI-Ready Edition)**  
-Turn ZIP codes into structured leads (business name, phone, rating, website).  
-Perfect for creators building:  
-- outreach systems  
-- SMB lead scrapers  
-- agency automations  
-- local-market intelligence tools
+Most landing-page graders are UI toys.
+This one is not.
 
-👉 **Download:**  
-[⬇️ `google-maps-lead-builder.json`](./google-maps-lead-builder.json)
+This workflow is designed as infrastructure:
 
-👉 **Full guide & LP:**  
-https://ysk-automation.com
+- API-first
+- Headless / machine-readable
+- Perfect for n8n, Make, Zapier, or your SaaS backend
+- Multi-purpose: monitoring, CRO, competitor analysis, ICP inference
+- Uses Gemini 3 Pro for high-accuracy reasoning
+- Returns strict, validated JSON (no hallucinated formatting)
 
----
-
-## 📚 Other Available Templates
-
-| # | Workflow | Description | Download |
-|:-:|:---------|:------------|:----------|
-| 1 | 🧠 **Self-Reflecting Workflow Logger** | AI analyzes your n8n execution logs and creates daily operational reflections. | [⬇️ JSON](./self-reflecting-logger.json) |
-| 2 | 🤖 **GitHub Workflow Finder AI** | Searches GitHub for public n8n workflows and ranks them by popularity & recency. | [⬇️ JSON](./github-workflow-finder-ai.json) |
-| 3 | 💬 **Empathy Reply Assistant** | Generates emotionally-intelligent replies with tone control & risk detection. | [⬇️ JSON](./empathy-reply-assistant.json) |
-| 4 | 🎨 **Creator RAG Booster** | Learns your writing voice (RAG) and generates on-brand posts, quotes, replies. | [⬇️ JSON](./creator-rag-booster.json) |
+👉 This is the core engine I’m building my micro-SaaS ecosystem on.
+And now you can use it too.
 
 ---
 
-## ⚙️ Usage
+# 🎯 What the LP Scoring API Does
 
-1. Download a workflow `.json` file  
-2. In n8n → *Import from File*  
-3. Add your credentials (Google, OpenAI, Supabase, Sheets, etc.)  
-4. Run — everything stays local, no external dependencies
+Submit a URL → get a complete structured evaluation:
 
----
+- Target audience inference
+- Offer summary
+- Primary unique value
+- Strengths & weaknesses
+- Competitor types
+- Differentiation analysis
+- Conversion, clarity, relevance, trust scores
+- Quick wins (1–2 day fixes)
+- A/B test ideas
+- Overall score (0–100)
+- Confidence levels
+- Full metadata
 
-## 🌐 Related Links
+All delivered as a single clean JSON object, ready for:
 
-- 🔗 **Templates Hub (GitHub Pages):**  
-  https://yskmtb0714.github.io/n8n-workflows
-
-- 🧵 **X (Twitter):**  
-  https://x.com/yskautomation
-
-- 🏗️ **Main LP / Product Site:**  
-  https://rag-whisperer-studio.lovable.app
-
----
-
-## 🧠 Author
-
-**Yusuke Matsuba — AI Automation Architect**  
-Building intelligent automation systems with:  
-- **n8n** (orchestration)  
-- **LangChain** (agents)  
-- **OpenAI / Anthropic** (LLMs)  
-- **Supabase** (vector memory)  
-- **Google / Notion** (output layers)
-
-Focused on **systems that earn, learn, and evolve autonomously.**
+- dashboards
+- Slack alerts
+- email reports
+- CI/CD checks
+- competitive intelligence
+- automated CRO pipelines
 
 ---
 
-## 📜 License
+# 📦 Download the Workflow
 
-MIT License © 2025 Yusuke M.  
-Feel free to fork, remix, and extend these workflows.
+## 🔍 LP Scoring API (Gemini 3 Pro)
+
+➡️ lp-scoring-api.json  
+An API-first landing page analysis engine for SaaS + B2B.
+
+Just import + add OpenRouter creds — ready in minutes.
 
 ---
 
-⭐ **If these workflows help you, please star the repo — it supports future releases!**
+# ⚙️ How It Works (High-Level)
+
+1. POST a URL to /lp-scoring
+2. Workflow fetches & cleans the website HTML
+3. Constructs a strict JSON-returning prompt
+4. Sends to Gemini 3 Pro via OpenRouter
+5. Parses, validates, and normalizes the response
+6. Returns a clean, predictable JSON payload
+
+Everything is headless — no UI, no manual review.
+
+---
+
+# 🔧 Ideal Use Cases
+
+This engine is designed for developers, founders, agencies, and automation builders who want:
+
+- Daily LP monitoring (competitors or clients)
+- Slack alerts if clarity/CTA/trust drops
+- Automated CRO suggestions
+- ICP detection pipelines
+- Data-driven A/B testing
+- Bulk LP auditing (100–1,000 sites per month)
+- Backend API for SaaS products
+
+---
+
+# 🧱 Example Integrations
+
+- n8n → Score competitor LPs every morning → Slack
+- Make.com → Summaries to Google Sheets
+- Zapier → Alert when overall score drops below 70
+- Supabase → Store results & build a dashboard
+- Your SaaS → “LP Analyzer” feature powered by this API
+
+---
+
+# 🌐 Other Workflows in This Repo
+
+While LP Scoring API is the flagship, the repo also includes:
+
+## 🧠 Self-Reflecting Logger
+AI-analyzed n8n execution logs
+
+## 🔍 GitHub Workflow Finder AI
+Discover public n8n workflows
+
+## 💬 Empathy Reply Assistant
+Emotionally-aware reply generator
+
+## 🎨 Creator RAG Booster
+Learns your writing tone from examples
+
+---
+
+# 🏗️ Author
+
+**Yusuke Matsuba — AI Automation Architect**
+
+Building API-first, headless automation systems with:
+
+- n8n
+- LangChain
+- Gemini 3 Pro
+- OpenAI / Anthropic
+- Supabase
+- Google / Notion output layers
+
+Focused on systems that earn, learn, and evolve autonomously.
+
+---
+
+# 📜 License
+
+MIT License © 2025 Yusuke M.
+Feel free to fork, extend, and deploy in your products.
+
+---
+
+⭐ If the LP Scoring API helps you, please star the repo — it boosts visibility and supports future releases.
