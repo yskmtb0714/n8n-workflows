@@ -1,0 +1,267 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lp-scoring",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4dcbad13-6dd8-4721-8440-2f472b091f8b",
+      "name": "Webhook: LP Scoring API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1712,
+        80
+      ],
+      "webhookId": "lp-scoring"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $json.body || {};\nconst query = $json.query || {};\n\n// Accept multiple possible keys for the LP URL for easier integration\nconst lpUrl = body.lp_url || body.url || body.product_url || query.lp_url || query.url || query.product_url;\n\nif (!lpUrl) {\n  throw new Error('Missing \"lp_url\" or \"url\" in request body or query.');\n}\n\nreturn [\n  {\n    lp_url: String(lpUrl).trim()\n  }\n];"
+      },
+      "id": "f50ec9b9-5692-47ba-8bb7-79a4e83c9b6f",
+      "name": "Normalize Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.lp_url }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "0e004d22-f403-49ce-b8dc-3da80b312f2a",
+      "name": "Fetch HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1264,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const url = $json.lp_url || '';\nconst html = $json.body || $json.data || '';\n\nif (!html) {\n  throw new Error('No HTML body returned from target URL.');\n}\n\nlet text = String(html);\n\n// Remove script blocks\ntext = text.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ');\n// Remove style blocks\ntext = text.replace(/<style[\\s\\S]*?<\\/style>/gi, ' ');\n// Strip all HTML tags\ntext = text.replace(/<[^>]+>/g, ' ');\n// Collapse whitespace\ntext = text.replace(/\\s+/g, ' ').trim();\n\n// Truncate to keep token count under control\nconst MAX_CHARS = 12000;\nif (text.length > MAX_CHARS) {\n  text = text.slice(0, MAX_CHARS) + '...';\n}\n\nconst prompt = `You are a Landing Page Scoring Engine for SaaS and B2B products.\\n\\nYou are given ONLY the public website content (landing page, marketing copy, visible sections) for a single product.\\nYour job is to:\\n- Infer the likely target audience and USP\\n- Identify strengths and weaknesses of the LP\\n- Describe the competitive landscape\\n- Propose concrete improvement ideas\\n- Assign 0-100 scores for key dimensions\\n\\nWebsite URL:\\n${url}\\n\\nWebsite content (cleaned):\\n\"\"\"\\n${text}\\n\"\"\"\\n\\nReturn ONLY a single valid JSON object in this exact structure:\\n\\n{\\n  \"url\": \"string (the analyzed URL)\",\\n  \"target_audience\": \"string (who this LP is really speaking to)\",\\n  \"offer_summary\": \"string (1-2 sentence summary of the core offer)\",\\n  \"primary_usp\": [\"3-5 bullet points of unique value\"],\\n  \"strengths\": [\"3-6 things the LP does well\"],\\n  \"weaknesses\": [\"3-6 concrete weaknesses or gaps\"],\\n  \"competitor_types\": [\"3-6 types of competitors the visitor is comparing against\"],\\n  \"differentiation_points\": [\"3-6 ways this product could or does stand out\"],\\n  \"scores\": {\\n    \"clarity_100\": 0,\\n    \"relevance_100\": 0,\\n    \"trust_100\": 0,\\n    \"conversion_100\": 0,\\n    \"overall_100\": 0\\n  },\\n  \"recommendations\": {\\n    \"quick_wins\": [\"3-6 changes that can be shipped in 1-2 days\"],\\n    \"test_ideas\": [\"3-6 A/B test ideas for headline, offer, social proof, etc.\"]\\n  },\\n  \"confidence\": 0.0\\n}\\n\\nDefinitions:\\n- clarity_100: 0–100 for how easy it is to understand what this does and for whom.\\n- relevance_100: 0–100 for how well the messaging matches the inferred target audience.\\n- trust_100: 0–100 based on social proof, specificity, and professionalism.\\n- conversion_100: 0–100 for how well the page drives a clear action (CTA, flow).\\n- overall_100: NOT an average; your holistic 0–100 judgment of how strong this LP is for the inferred ICP.\\n- confidence: 0.0–1.0 for how confident you are in this analysis.\\n\\nRules:\\n- Respond with ONLY valid JSON.\\n- No markdown, no backticks, no comments.\\n- All *_100 scores must be integers 0–100.\\n- \"confidence\" must be a number 0.0–1.0.\\n- The \"url\" field in the JSON must be exactly \"${url}\".\\n- Even if the site is vague, make your best guess from the available text.`;\n\nreturn [\n  {\n    prompt,\n    lp_url: url\n  }\n];"
+      },
+      "id": "f767c719-3bc0-4de5-9073-9bdc6e3f9c58",
+      "name": "Build LP Scoring Prompt",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "id": "3a9f46ff-25f5-4d41-b300-0bb7944821d7",
+      "name": "LLM Chain (Gemini 3 Pro)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -816,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-3-pro-preview",
+        "options": {}
+      },
+      "id": "4399b197-59d9-44bb-b097-4b35ad186eee",
+      "name": "Gemini 3 Pro",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// (1) Read all incoming items\nconst items = $input.all();\n\nif (!items.length) {\n  throw new Error('No incoming items to parse.');\n}\n\n// (2) Try to extract the raw LLM output from different possible fields\nlet raw =\n  items[0].json.text ||\n  (items[0].json.data &&\n    (items[0].json.data.response || items[0].json.data.text)) ||\n  items[0].json.response ||\n  '';\n\nif (!raw) {\n  throw new Error(\n    'No LLM output found. Raw data: ' +\n      JSON.stringify(items[0].json).slice(0, 300)\n  );\n}\n\nraw = String(raw).trim();\n\n// (3) Remove JSON code fences if present\nraw = raw\n  .replace(/```json/gi, '')\n  .replace(/```/g, '')\n  .trim();\n\n// (4) Extract the first JSON object from the text\nlet jsonText = raw;\nconst match = raw.match(/\\{[\\s\\S]*\\}/);\nif (match) {\n  jsonText = match[0];\n}\n\n// (5) Parse JSON\nlet data;\ntry {\n  data = JSON.parse(jsonText);\n} catch (e) {\n  throw new Error(\n    'Failed to parse LLM output JSON.\\nError: ' +\n      e.message +\n      '\\nRaw (truncated): ' +\n      raw.slice(0, 400)\n  );\n}\n\n// (6) Normalize array-like fields\nfunction asArray(val) {\n  if (Array.isArray(val)) return val;\n  if (typeof val === 'string' && val.trim()) return [val.trim()];\n  return [];\n}\n\n// (7) Clamp scores to 0–100\nfunction clampScore(value, fallback = 70) {\n  let num = typeof value === 'number' ? value : fallback;\n  if (Number.isNaN(num)) num = fallback;\n  return Math.max(0, Math.min(100, Math.round(num)));\n}\n\n// (8) Clamp confidence to 0–1\nlet confidence = 0.7;\nif (typeof data.confidence === 'number') {\n  confidence = Math.max(0, Math.min(1, data.confidence));\n}\n\nconst scores = data.scores || {};\n\nconst normalizedScores = {\n  clarity_100: clampScore(\n    scores.clarity_100 ?? scores.clarity ?? scores.clarityScore,\n    70\n  ),\n  relevance_100: clampScore(\n    scores.relevance_100 ?? scores.relevance ?? scores.relevanceScore,\n    70\n  ),\n  trust_100: clampScore(\n    scores.trust_100 ?? scores.trust ?? scores.trustScore,\n    70\n  ),\n  conversion_100: clampScore(\n    scores.conversion_100 ?? scores.conversion ?? scores.conversionRate,\n    70\n  ),\n  overall_100: clampScore(\n    scores.overall_100 ?? scores.overall ?? scores.overallScore,\n    75\n  )\n};\n\nconst recs = data.recommendations || {};\n\n// (9) Recover original LP URL from Normalize Request node\nlet lpUrl = '';\ntry {\n  lpUrl = $node['Normalize Request'].json.lp_url || '';\n} catch (e) {\n  lpUrl = '';\n}\n\n// (10) Build final normalized JSON output\nconst result = {\n  url:\n    (typeof data.url === 'string' &&\n      data.url !== 'input_provided_in_prompt' &&\n      data.url.trim()) ||\n    lpUrl ||\n    'Unknown',\n  target_audience: data.target_audience || 'Unknown',\n  offer_summary: data.offer_summary || '',\n  primary_usp: asArray(data.primary_usp),\n  strengths: asArray(data.strengths),\n  weaknesses: asArray(data.weaknesses),\n  competitor_types: asArray(data.competitor_types),\n  differentiation_points: asArray(data.differentiation_points),\n  scores: normalizedScores,\n  recommendations: {\n    quick_wins: asArray(recs.quick_wins),\n    test_ideas: asArray(recs.test_ideas)\n  },\n  confidence,\n  timestamp: new Date().toISOString(),\n  metadata: {\n    model: 'google/gemini-3-pro-preview',\n    provider: 'openrouter',\n    input_lp_url: lpUrl || null\n  }\n};\n\nreturn [\n  {\n    json: result\n  }\n];"
+      },
+      "id": "6cf812bd-f269-43a4-9ce6-42dc86f19497",
+      "name": "Parse & Score LP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "d77563eb-8a41-4c8d-81df-3b250a3c684c",
+      "name": "Return JSON Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -240,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup notes\n- Requires OpenRouter key\n- Model: `google/gemini-3-pro-preview`\n- POST only\n- Accepts: `lp_url`, `url`, or `product_url`",
+        "height": 200,
+        "width": 380
+      },
+      "id": "fdbb66a5-6cb0-49f7-9482-346fff844c04",
+      "name": "Sticky: Setup Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -448
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Flow summary\nWebhook → Normalize URL → Fetch HTML → Build Prompt → Gemini → Parse JSON → Return response",
+        "height": 120,
+        "width": 380,
+        "color": 4
+      },
+      "id": "ccb4b395-d04e-4238-8405-dc6a109bff06",
+      "name": "Sticky: Flow Summary",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1792,
+        304
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## LP Scoring API — Overview\n\nThis workflow provides a simple HTTP endpoint that analyzes any landing page using an LLM (Gemini 3 Pro via OpenRouter). It fetches the HTML, cleans the content, builds a structured prompt, and returns a machine-ready JSON score.\n\n### How it works\nYou send a POST request with a URL → the workflow downloads the page → extracts readable text → sends it to Gemini → parses the JSON → returns normalized scores for clarity, relevance, trust, conversion, and overall quality.\n\n### Setup steps\n1. Add your OpenRouter credentials to the **Gemini 3 Pro** node.\n2. Deploy the workflow and copy the production Webhook URL.\n3. Send a POST payload like: `{ \"lp_url\": \"https://example.com\" }`.\n4. Integrate the JSON output into dashboards, alerts, daily monitors, or any automation system.",
+        "height": 456,
+        "width": 560,
+        "color": 7
+      },
+      "id": "afb6a9b1-10a4-4fa8-b96f-93ba531303ae",
+      "name": "Sticky: Overview1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        -464
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Troubleshooting\n- Empty HTML → site blocked or not public\n- JSON error → model returned extra text\n- Low score quality → try adding more LP text or reducing noise",
+        "height": 184,
+        "width": 380,
+        "color": 3
+      },
+      "id": "bf512d90-68a7-4d38-9863-d7521e8e5dfe",
+      "name": "Sticky: Troubleshooting1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1520,
+        -208
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook: LP Scoring API": {
+      "main": [
+        [
+          {
+            "node": "Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch HTML": {
+      "main": [
+        [
+          {
+            "node": "Build LP Scoring Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LP Scoring Prompt": {
+      "main": [
+        [
+          {
+            "node": "LLM Chain (Gemini 3 Pro)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Chain (Gemini 3 Pro)": {
+      "main": [
+        [
+          {
+            "node": "Parse & Score LP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 3 Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM Chain (Gemini 3 Pro)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Score LP": {
+      "main": [
+        [
+          {
+            "node": "Return JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "cb6a5c207772ff185d6f50424ee0baf7d8ab8449011e139b3b983206d2202a31"
+  }
+}
